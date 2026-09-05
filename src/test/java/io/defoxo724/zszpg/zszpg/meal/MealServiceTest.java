@@ -41,7 +41,7 @@ public class MealServiceTest {
 
         // Assert
         assertEquals(expectedResult, actualResult);
-        verify(mealRepository, times(1)).save(meal); // Opcjonalne, ale dobre
+        verify(mealRepository, times(1)).save(meal);
     }
 
     @Test

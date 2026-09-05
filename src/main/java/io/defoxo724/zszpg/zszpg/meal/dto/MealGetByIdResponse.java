@@ -6,12 +6,14 @@ import io.defoxo724.zszpg.zszpg.meal.MealModel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class MealGetByIdResponse {
     private Long id;
     private String name;
