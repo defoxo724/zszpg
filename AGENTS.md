@@ -38,3 +38,7 @@ Przykład:
 
 # Zasady tworzenie dokumentacji 
 - Jeśli poproszę cię o utworzenie dokumentacji to dodaj tylko do kontrolerów annotacje swaggera z dokładnym opisem kontrollera i endpointów wraz z przykładami 
+
+- Dokumentację napisz po angielsku
+
+- Masz NIE TWORZYĆ dokumentacji w żadnym README.md!!!
