@@ -1,3 +1,16 @@
+# Zasady dodawania nowego modelu 
+- Jeśli poproszę cię o stworzenie nowego modelu to musisz utworzyć nowy folder w `src/main/java/.../zszpg/zszpg/` używając `snake_case`.
+
+- Masz utworzyć cały pakiet czyli Model, Repozytorium, Serwis oraz Controller, a także DTO dla każdej akcji. Przykładowo, jeśli tworzysz w `UserController` metodę `register` to parametr który przyjmuje ta funkcja powinna być klasą `RegisterNewUserRequest`, tak samo jeśli ta funkcja coś zwraca to ma być klasa `RegisterNewUserResponse` 
+
+- Po utworzeniu tego wszystkiego nie pisz testów, to kiedy napisać testy zależy ode mnie.
+
+# Zasady tworzenie relacji 
+- Jeśli poproszę cię o utworzenie relacji pomiędzy dwoma istniejącymi modelami to zrób to
+
+- Po połączeniu nie pisz testów, to kiedy napisać testy zależy ode mnie.
+
+
 # Zasady pisania testów 
 - Testy dla javy umieszczaj standardowo w folderze `test/` w drzewie katalogu odpowiadającym klasom z katalogu `src/`. 
 
@@ -21,3 +34,7 @@ Przykład:
 - Jeśli poproszę cię o napisanie testów jednostkowych dla tego projektu to przejrzyj cały projekt, sprawdź jakie klasy i metody nie posiadają testów i napisz je według zasad. 
 
 - Każda klasa powinna mieć własną klasę testującą, nawet jeśli klasy są proste i podobne do siebie to nie ładuje wszystkiego do jednej klasy testującej tylko utwórz klasy testujące dla każdej klasy.
+
+
+# Zasady tworzenie dokumentacji 
+- Jeśli poproszę cię o utworzenie dokumentacji to dodaj tylko do kontrolerów annotacje swaggera z dokładnym opisem kontrollera i endpointów wraz z przykładami 
