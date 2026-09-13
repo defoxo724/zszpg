@@ -1,7 +1,7 @@
 # Zasady dodawania nowego modelu 
 - Jeśli poproszę cię o stworzenie nowego modelu to musisz utworzyć nowy folder w `src/main/java/.../zszpg/zszpg/` używając `snake_case`.
 
-- Masz utworzyć cały pakiet czyli Model, Repozytorium, Serwis oraz Controller, a także DTO dla każdej akcji. Przykładowo, jeśli tworzysz w `UserController` metodę `register` to parametr który przyjmuje ta funkcja powinna być klasą `RegisterNewUserRequest`, tak samo jeśli ta funkcja coś zwraca to ma być klasa `RegisterNewUserResponse` 
+- Masz utworzyć cały pakiet czyli Model, Repozytorium, Serwis oraz Controller, a także DTO dla każdej akcji. Przykładowo, jeśli tworzysz w `UserController` metodę `register` to parametr który przyjmuje ta funkcja powinna być klasą `RegisterNewUserRequest`, tak samo jeśli ta funkcja coś zwraca to ma być klasa `RegisterNewUserResponse`.
 
 - Po utworzeniu tego wszystkiego nie pisz testów, to kiedy napisać testy zależy ode mnie.
 
