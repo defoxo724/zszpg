@@ -3,7 +3,6 @@ package io.defoxo724.zszpg.zszpg.meal_category;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,119 +24,106 @@ import io.defoxo724.zszpg.zszpg.meal_category.dto.MealCategoryUpdateRequest;
 import io.defoxo724.zszpg.zszpg.meal_category.dto.MealCategoryUpdateResponse;
 
 @ExtendWith(MockitoExtension.class)
-public class MealCategoryControllerTest {
+class MealCategoryControllerTest {
     @Mock
     private MealCategoryService mealCategoryService;
-
     @InjectMocks
     private MealCategoryController mealCategoryController;
 
     @Test
-    void CreateModel_ShouldSaveAndReturnSavedModel() {
-        // Arrange
-        MealCategoryCreateRequest request = new MealCategoryCreateRequest("Pizza");
-        MealCategoryModel savedMealCategory = new MealCategoryModel(1L, "Pizza");
+    void WhenCalled_CreateMealCategory_ShouldReturnCreatedCategory() {
+        /* Arrange */
+        MealCategoryCreateRequest request = new MealCategoryCreateRequest("Dinner");
+        when(mealCategoryService.createMealCategory(any(MealCategoryModel.class)))
+                .thenReturn(new MealCategoryModel(1L, "Dinner"));
 
-        when(mealCategoryService.createMealCategory(any(MealCategoryModel.class))).thenReturn(savedMealCategory);
-
-        // Act
+        /* Act */
         ResponseEntity<MealCategoryCreateResponse> result = mealCategoryController.createMealCategory(request);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealCategoryCreateResponse(1L, "Pizza"), result.getBody());
+        assertEquals(new MealCategoryCreateResponse(1L, "Dinner"), result.getBody());
     }
 
     @Test
-    void WhenCalled_GetMealCategoryById_IfMealCategoryExists_ShouldReturnMealCategory() {
-        // Arrange
-        MealCategoryModel mealCategory = new MealCategoryModel(1L, "Pizza");
+    void WhenCalled_GetMealCategoryById_WithExistingCategory_ShouldReturnCategory() {
+        /* Arrange */
+        when(mealCategoryService.getMealCategoryById(1L)).thenReturn(new MealCategoryModel(1L, "Dinner"));
 
-        when(mealCategoryService.getMealCategoryById(1L)).thenReturn(mealCategory);
-
-        // Act
+        /* Act */
         ResponseEntity<MealCategoryGetByIdResponse> result = mealCategoryController.getMealCategoryById(1L);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealCategoryGetByIdResponse(1L, "Pizza"), result.getBody());
+        assertEquals(new MealCategoryGetByIdResponse(1L, "Dinner"), result.getBody());
     }
 
     @Test
-    void WhenCalled_GetMealCategoryById_IfMealCategoryDoesNotExist_ShouldReturnNotFound() {
-        // Arrange
+    void WhenCalled_GetMealCategoryById_WithMissingCategory_ShouldReturnNotFound() {
+        /* Arrange */
         when(mealCategoryService.getMealCategoryById(1L)).thenReturn(null);
 
-        // Act
+        /* Act */
         ResponseEntity<MealCategoryGetByIdResponse> result = mealCategoryController.getMealCategoryById(1L);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
     }
 
     @Test
-    void WhenCalled_GetAllMealCategories_ShouldReturnAllMealCategories() {
-        // Arrange
-        List<MealCategoryModel> mealCategories = List.of(
-                new MealCategoryModel(1L, "Pizza"),
-                new MealCategoryModel(2L, "Burger"));
+    void WhenCalled_GetAllMealCategories_ShouldReturnAllCategories() {
+        /* Arrange */
+        List<MealCategoryModel> categories = List.of(new MealCategoryModel(1L, "Dinner"));
+        when(mealCategoryService.getAllMealCategories()).thenReturn(categories);
 
-        when(mealCategoryService.getAllMealCategories()).thenReturn(mealCategories);
-
-        // Act
+        /* Act */
         ResponseEntity<MealCategoryGetAllResponse> result = mealCategoryController.getAllMealCategories();
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(MealCategoryGetAllResponse.fromModelList(mealCategories), result.getBody());
+        assertEquals(MealCategoryGetAllResponse.fromModelList(categories), result.getBody());
     }
 
     @Test
-    void WhenCalled_UpdateMealCategoryById_IfMealCategoryExists_ShouldReturnUpdatedMealCategory() {
-        // Arrange
-        Long id = 1L;
-        MealCategoryUpdateRequest request = new MealCategoryUpdateRequest("Dinner");
-        MealCategoryModel updatedMealCategory = new MealCategoryModel(id, "Dinner");
+    void WhenCalled_UpdateMealCategoryById_WithExistingCategory_ShouldReturnUpdatedCategory() {
+        /* Arrange */
+        MealCategoryUpdateRequest request = new MealCategoryUpdateRequest("Lunch");
+        when(mealCategoryService.updateMealCategoryById(org.mockito.ArgumentMatchers.eq(1L), any(MealCategoryModel.class)))
+                .thenReturn(new MealCategoryModel(1L, "Lunch"));
 
-        when(mealCategoryService.updateMealCategoryById(eq(id), any(MealCategoryModel.class)))
-                .thenReturn(updatedMealCategory);
+        /* Act */
+        ResponseEntity<MealCategoryUpdateResponse> result = mealCategoryController.updateMealCategoryById(1L, request);
 
-        // Act
-        ResponseEntity<MealCategoryUpdateResponse> result = mealCategoryController.updateMealCategoryById(id,
-                request);
-
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealCategoryUpdateResponse(id, "Dinner"), result.getBody());
+        assertEquals(new MealCategoryUpdateResponse(1L, "Lunch"), result.getBody());
     }
 
     @Test
-    void WhenCalled_UpdateMealCategoryById_IfMealCategoryDoesNotExist_ShouldReturnNotFound() {
-        // Arrange
-        Long id = 1L;
-        MealCategoryUpdateRequest request = new MealCategoryUpdateRequest("Dinner");
+    void WhenCalled_UpdateMealCategoryById_WithMissingCategory_ShouldReturnNotFound() {
+        /* Arrange */
+        MealCategoryUpdateRequest request = new MealCategoryUpdateRequest("Lunch");
+        when(mealCategoryService.updateMealCategoryById(org.mockito.ArgumentMatchers.eq(1L), any(MealCategoryModel.class)))
+                .thenReturn(null);
 
-        when(mealCategoryService.updateMealCategoryById(eq(id), any(MealCategoryModel.class))).thenReturn(null);
+        /* Act */
+        ResponseEntity<MealCategoryUpdateResponse> result = mealCategoryController.updateMealCategoryById(1L, request);
 
-        // Act
-        ResponseEntity<MealCategoryUpdateResponse> result = mealCategoryController.updateMealCategoryById(id,
-                request);
-
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
     }
 
     @Test
-    void WhenCalled_DeleteMealCategory_ShouldDeleteMealCategoryAndReturnNoContent() {
-        // Arrange
+    void WhenCalled_DeleteMealCategory_ShouldReturnNoContent() {
+        /* Arrange */
         Long id = 1L;
 
-        // Act
+        /* Act */
         ResponseEntity<Void> result = mealCategoryController.deleteMealCategory(id);
 
-        // Assert
+        /* Assert */
         verify(mealCategoryService).deleteMealCategoryById(id);
         assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull(result.getBody());

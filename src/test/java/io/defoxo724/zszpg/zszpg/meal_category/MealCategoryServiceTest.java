@@ -2,9 +2,8 @@ package io.defoxo724.zszpg.zszpg.meal_category;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,129 +17,117 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MealCategoryServiceTest {
-
+class MealCategoryServiceTest {
     @Mock
     private MealCategoryRepository mealCategoryRepository;
-
     @InjectMocks
     private MealCategoryService mealCategoryService;
 
     @Test
-    void CreateModel_ShouldSaveAndReturnSavedModel() {
-        // Arrange
-        MealCategoryModel mealCategory = new MealCategoryModel(null, "name");
-        MealCategoryModel expectedResult = new MealCategoryModel(1L, "name");
+    void WhenCalled_CreateMealCategory_ShouldReturnSavedCategory() {
+        /* Arrange */
+        MealCategoryModel category = new MealCategoryModel(null, "Dinner");
+        MealCategoryModel savedCategory = new MealCategoryModel(1L, "Dinner");
+        when(mealCategoryRepository.save(category)).thenReturn(savedCategory);
 
-        when(mealCategoryRepository.save(mealCategory)).thenReturn(expectedResult);
+        /* Act */
+        MealCategoryModel result = mealCategoryService.createMealCategory(category);
 
-        // Act
-        MealCategoryModel actualResult = mealCategoryService.createMealCategory(mealCategory);
-
-        // Assert
-        assertEquals(expectedResult, actualResult);
-        verify(mealCategoryRepository, times(1)).save(mealCategory);
+        /* Assert */
+        assertSame(savedCategory, result);
+        verify(mealCategoryRepository).save(category);
     }
 
     @Test
-    void GetMealCategoryById_WhenModelWithGivenIdExists_ShouldReturnModel() {
-        // Arrange
-        MealCategoryModel expectedResult = new MealCategoryModel(1L, "name");
+    void WhenCalled_GetMealCategoryById_WithExistingCategory_ShouldReturnCategory() {
+        /* Arrange */
+        MealCategoryModel expected = new MealCategoryModel(1L, "Dinner");
+        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(expected));
 
-        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(expectedResult));
+        /* Act */
+        MealCategoryModel result = mealCategoryService.getMealCategoryById(1L);
 
-        // Act
-        MealCategoryModel actualResult = mealCategoryService.getMealCategoryById(1L);
-
-        // Assert
-        assertEquals(expectedResult, actualResult);
+        /* Assert */
+        assertSame(expected, result);
     }
 
     @Test
-    void GetMealCategoryById_WhenModelWithGivenIdDoesNotExist_ShouldReturnNull() {
-        // Arrange
+    void WhenCalled_GetMealCategoryById_WithMissingCategory_ShouldReturnNull() {
+        /* Arrange */
         when(mealCategoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act
-        MealCategoryModel actualResult = mealCategoryService.getMealCategoryById(1L);
+        /* Act */
+        MealCategoryModel result = mealCategoryService.getMealCategoryById(1L);
 
-        // Assert
-        assertNull(actualResult);
+        /* Assert */
+        assertNull(result);
     }
 
     @Test
-    void GetAllMealCategories_ShouldReturnListOfMealCategories() {
-        // Arrange
-        List<MealCategoryModel> expectedResult = List.of(
-                new MealCategoryModel(1L, "name1"),
-                new MealCategoryModel(2L, "name2"));
+    void WhenCalled_GetAllMealCategories_ShouldReturnRepositoryResult() {
+        /* Arrange */
+        List<MealCategoryModel> expected = List.of(new MealCategoryModel(1L, "Dinner"));
+        when(mealCategoryRepository.findAll()).thenReturn(expected);
 
-        when(mealCategoryRepository.findAll()).thenReturn(expectedResult);
+        /* Act */
+        List<MealCategoryModel> result = mealCategoryService.getAllMealCategories();
 
-        // Act
-        List<MealCategoryModel> actualResult = mealCategoryService.getAllMealCategories();
-
-        // Assert
-        assertEquals(expectedResult, actualResult);
+        /* Assert */
+        assertSame(expected, result);
     }
 
     @Test
-    void UpdateMealCategoryById_WhenModelWithGivenIdExists_ShouldUpdateAndReturnUpdatedModel() {
-        // Arrange
-        MealCategoryModel existingMealCategory = new MealCategoryModel(1L, "name");
-        MealCategoryModel updatedMealCategory = new MealCategoryModel(null, "new name");
+    void WhenCalled_UpdateMealCategoryById_WithExistingCategory_ShouldUpdateAndReturnSavedCategory() {
+        /* Arrange */
+        MealCategoryModel existing = new MealCategoryModel(1L, "Old");
+        MealCategoryModel changes = new MealCategoryModel(null, "New");
+        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(mealCategoryRepository.save(existing)).thenReturn(existing);
 
-        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(existingMealCategory));
-        when(mealCategoryRepository.save(existingMealCategory)).thenReturn(updatedMealCategory);
+        /* Act */
+        MealCategoryModel result = mealCategoryService.updateMealCategoryById(1L, changes);
 
-        // Act
-        MealCategoryModel actualResult = mealCategoryService.updateMealCategoryById(1L, updatedMealCategory);
-
-        // Assert
-        assertEquals(updatedMealCategory, actualResult);
-        verify(mealCategoryRepository, times(1)).findById(1L);
-        verify(mealCategoryRepository, times(1)).save(existingMealCategory);
+        /* Assert */
+        assertSame(existing, result);
+        assertEquals("New", existing.getName());
+        verify(mealCategoryRepository).save(existing);
     }
 
     @Test
-    void UpdateMealCategoryById_WhenModelWithGivenIdDoesNotExist_ShouldReturnNull() {
-        // Arrange
-        MealCategoryModel updatedMealCategory = new MealCategoryModel(null, "new name");
+    void WhenCalled_UpdateMealCategoryById_WithMissingCategory_ShouldReturnNull() {
+        /* Arrange */
+        MealCategoryModel changes = new MealCategoryModel(null, "New");
         when(mealCategoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act
-        MealCategoryModel actualResult = mealCategoryService.updateMealCategoryById(1L, updatedMealCategory);
+        /* Act */
+        MealCategoryModel result = mealCategoryService.updateMealCategoryById(1L, changes);
 
-        // Assert
-        assertNull(actualResult);
-        verify(mealCategoryRepository, times(1)).findById(1L);
-        verify(mealCategoryRepository, times(0)).save(any(MealCategoryModel.class));
+        /* Assert */
+        assertNull(result);
+        verify(mealCategoryRepository, never()).save(org.mockito.ArgumentMatchers.any());
     }
 
     @Test
-    void DeleteMealCategoryById_WhenModelWithGivenIdExists_ShouldDeleteModel() {
-        // Arrange
-        MealCategoryModel existingMealCategory = new MealCategoryModel(1L, "name");
-        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(existingMealCategory));
+    void WhenCalled_DeleteMealCategoryById_WithExistingCategory_ShouldDeleteCategory() {
+        /* Arrange */
+        when(mealCategoryRepository.findById(1L)).thenReturn(Optional.of(new MealCategoryModel(1L, "Dinner")));
 
-        // Act
+        /* Act */
         mealCategoryService.deleteMealCategoryById(1L);
 
-        // Assert
-        verify(mealCategoryRepository, times(1)).findById(1L);
-        verify(mealCategoryRepository, times(1)).deleteById(1L);
+        /* Assert */
+        verify(mealCategoryRepository).deleteById(1L);
     }
 
     @Test
-    void DeleteMealCategoryById_WhenModelWithGivenIdDoesNotExist_ShouldNotDeleteModel() {
-        // Arrange
+    void WhenCalled_DeleteMealCategoryById_WithMissingCategory_ShouldNotDeleteCategory() {
+        /* Arrange */
         when(mealCategoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act
+        /* Act */
         mealCategoryService.deleteMealCategoryById(1L);
 
-        // Assert
-        verify(mealCategoryRepository, times(1)).findById(1L);
-        verify(mealCategoryRepository, times(0)).deleteById(anyLong());
+        /* Assert */
+        verify(mealCategoryRepository, never()).deleteById(1L);
     }
 }

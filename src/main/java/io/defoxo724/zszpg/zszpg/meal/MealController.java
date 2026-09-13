@@ -29,7 +29,10 @@ public class MealController {
 
     @PostMapping
     public ResponseEntity<MealCreateResponse> createMeal(@RequestBody MealCreateRequest meal) {
-        MealModel createdMeal = mealService.createMeal(meal.toModel());
+        MealModel createdMeal = mealService.createMeal(meal.toModel(), meal.getMealCategoryId());
+        if (createdMeal == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(MealCreateResponse.fromModel(createdMeal));
     }
 
@@ -50,7 +53,7 @@ public class MealController {
     @PutMapping("/{id}")
     public ResponseEntity<MealUpdateResponse> updateMealById(@PathVariable Long id,
             @RequestBody MealUpdateRequest meal) {
-        MealModel updatedMeal = mealService.updateMealById(id, meal.toModel());
+        MealModel updatedMeal = mealService.updateMealById(id, meal.toModel(), meal.getMealCategoryId());
         if (updatedMeal == null) {
             return ResponseEntity.notFound().build();
         }

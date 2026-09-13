@@ -19,9 +19,11 @@ public class MealCreateResponse {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long mealCategoryId;
 
     public static MealCreateResponse fromModel(MealModel meal) {
-        return new MealCreateResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice());
+        return new MealCreateResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice(),
+                meal.getMealCategory().getId());
     }
 
 }

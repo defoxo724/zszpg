@@ -19,8 +19,9 @@ public class MealCreateRequest {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long mealCategoryId;
 
     public MealModel toModel() {
-        return new MealModel(null, name, description, price);
+        return new MealModel(null, name, description, price, null);
     }
 }

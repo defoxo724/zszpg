@@ -2,10 +2,13 @@ package io.defoxo724.zszpg.zszpg.meal;
 
 import java.math.BigDecimal;
 
+import io.defoxo724.zszpg.zszpg.meal_category.MealCategoryModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,4 +26,7 @@ public class MealModel {
     private String name;
     private String description;
     private BigDecimal price;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "meal_category_id", nullable = false)
+    private MealCategoryModel mealCategory;
 }

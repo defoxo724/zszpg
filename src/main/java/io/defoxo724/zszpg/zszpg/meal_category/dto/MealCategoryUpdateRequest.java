@@ -16,6 +16,6 @@ public class MealCategoryUpdateRequest {
     private String name;
 
     public MealCategoryModel toModel() {
-        return new MealCategoryModel(null, name);
+        return new MealCategoryModel(null, name, null);
     }
 }

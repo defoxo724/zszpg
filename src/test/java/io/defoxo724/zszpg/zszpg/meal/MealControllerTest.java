@@ -1,10 +1,8 @@
 package io.defoxo724.zszpg.zszpg.meal;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,120 +23,130 @@ import io.defoxo724.zszpg.zszpg.meal.dto.MealGetAllResponse;
 import io.defoxo724.zszpg.zszpg.meal.dto.MealGetByIdResponse;
 import io.defoxo724.zszpg.zszpg.meal.dto.MealUpdateRequest;
 import io.defoxo724.zszpg.zszpg.meal.dto.MealUpdateResponse;
+import io.defoxo724.zszpg.zszpg.meal_category.MealCategoryModel;
 
 @ExtendWith(MockitoExtension.class)
-public class MealControllerTest {
+class MealControllerTest {
     @Mock
     private MealService mealService;
-
     @InjectMocks
     private MealController mealController;
 
     @Test
-    void CreateModel_ShouldSaveAndReturnSavedModel() {
-        // Arrange
-        MealCreateRequest request = new MealCreateRequest("Pizza", "Margherita", new BigDecimal("32.00"));
-        MealModel savedMeal = new MealModel(1L, "Pizza", "Margherita", new BigDecimal("32.00"));
+    void WhenCalled_CreateMeal_WithExistingCategory_ShouldReturnCreatedMeal() {
+        /* Arrange */
+        MealCreateRequest request = new MealCreateRequest("Pizza", "Margherita", new BigDecimal("32.00"), 5L);
+        MealModel saved = meal(1L, "Pizza", "Margherita", "32.00");
+        when(mealService.createMeal(any(MealModel.class), org.mockito.ArgumentMatchers.eq(5L))).thenReturn(saved);
 
-        when(mealService.createMeal(any(MealModel.class))).thenReturn(savedMeal);
-
-        // Act
+        /* Act */
         ResponseEntity<MealCreateResponse> result = mealController.createMeal(request);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealCreateResponse(1L, "Pizza", "Margherita", new BigDecimal("32.00")), result.getBody());
+        assertEquals(new MealCreateResponse(1L, "Pizza", "Margherita", new BigDecimal("32.00"), 5L), result.getBody());
     }
 
     @Test
-    void WhenCalled_GetMealById_IfMealExists_ShouldReturnMeal() {
-        // Arrange
-        MealModel meal = new MealModel(1L, "Pizza", "Margherita", new BigDecimal("32.00"));
+    void WhenCalled_CreateMeal_WithMissingCategory_ShouldReturnNotFound() {
+        /* Arrange */
+        MealCreateRequest request = new MealCreateRequest("Pizza", "Margherita", new BigDecimal("32.00"), 5L);
+        when(mealService.createMeal(any(MealModel.class), org.mockito.ArgumentMatchers.eq(5L))).thenReturn(null);
 
-        when(mealService.getMealById(1L)).thenReturn(meal);
+        /* Act */
+        ResponseEntity<MealCreateResponse> result = mealController.createMeal(request);
 
-        // Act
+        /* Assert */
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertNull(result.getBody());
+    }
+
+    @Test
+    void WhenCalled_GetMealById_WithExistingMeal_ShouldReturnMeal() {
+        /* Arrange */
+        when(mealService.getMealById(1L)).thenReturn(meal(1L, "Pizza", "Margherita", "32.00"));
+
+        /* Act */
         ResponseEntity<MealGetByIdResponse> result = mealController.getMealById(1L);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealGetByIdResponse(1L, "Pizza", "Margherita", new BigDecimal("32.00")), result.getBody());
+        assertEquals(new MealGetByIdResponse(1L, "Pizza", "Margherita", new BigDecimal("32.00"), 5L), result.getBody());
     }
 
     @Test
-    void WhenCalled_GetMealById_IfMealDoesNotExist_ShouldReturnNotFound() {
-        // Arrange
+    void WhenCalled_GetMealById_WithMissingMeal_ShouldReturnNotFound() {
+        /* Arrange */
         when(mealService.getMealById(1L)).thenReturn(null);
 
-        // Act
+        /* Act */
         ResponseEntity<MealGetByIdResponse> result = mealController.getMealById(1L);
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
     }
 
     @Test
     void WhenCalled_GetAllMeals_ShouldReturnAllMeals() {
-        // Arrange
-        List<MealModel> meals = List.of(
-                new MealModel(1L, "Pizza", "Margherita", new BigDecimal("32.00")),
-                new MealModel(2L, "Burger", "Cheeseburger", new BigDecimal("28.00")));
-
+        /* Arrange */
+        List<MealModel> meals = List.of(meal(1L, "Pizza", "Margherita", "32.00"));
         when(mealService.getAllMeals()).thenReturn(meals);
 
-        // Act
+        /* Act */
         ResponseEntity<MealGetAllResponse> result = mealController.getAllMeals();
 
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(MealGetAllResponse.fromModelList(meals), result.getBody());
     }
 
     @Test
-    void WhenCalled_UpdateMealById_IfMealExists_ShouldReturnUpdatedMeal() {
-        // Arrange
-        Long id = 1L;
-        MealUpdateRequest request = new MealUpdateRequest("Pizza", "Capricciosa", new BigDecimal("35.00"));
-        MealModel updatedMeal = new MealModel(id, "Pizza", "Capricciosa", new BigDecimal("35.00"));
+    void WhenCalled_UpdateMealById_WithExistingMealAndCategory_ShouldReturnUpdatedMeal() {
+        /* Arrange */
+        MealUpdateRequest request = new MealUpdateRequest("Pizza", "Capricciosa", new BigDecimal("35.00"), 5L);
+        MealModel updated = meal(1L, "Pizza", "Capricciosa", "35.00");
+        when(mealService.updateMealById(org.mockito.ArgumentMatchers.eq(1L), any(MealModel.class),
+                org.mockito.ArgumentMatchers.eq(5L))).thenReturn(updated);
 
-        when(mealService.updateMealById(eq(id), any(MealModel.class))).thenReturn(updatedMeal);
+        /* Act */
+        ResponseEntity<MealUpdateResponse> result = mealController.updateMealById(1L, request);
 
-        // Act
-        ResponseEntity<MealUpdateResponse> result = mealController.updateMealById(id, request);
-
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(new MealUpdateResponse(id, "Pizza", "Capricciosa", new BigDecimal("35.00")), result.getBody());
+        assertEquals(new MealUpdateResponse(1L, "Pizza", "Capricciosa", new BigDecimal("35.00"), 5L), result.getBody());
     }
 
     @Test
-    void WhenCalled_UpdateMealById_IfMealDoesNotExist_ShouldReturnNotFound() {
-        // Arrange
-        Long id = 1L;
-        MealUpdateRequest request = new MealUpdateRequest("Pizza", "Capricciosa", new BigDecimal("35.00"));
+    void WhenCalled_UpdateMealById_WithMissingMealOrCategory_ShouldReturnNotFound() {
+        /* Arrange */
+        MealUpdateRequest request = new MealUpdateRequest("Pizza", "Capricciosa", new BigDecimal("35.00"), 5L);
+        when(mealService.updateMealById(org.mockito.ArgumentMatchers.eq(1L), any(MealModel.class),
+                org.mockito.ArgumentMatchers.eq(5L))).thenReturn(null);
 
-        when(mealService.updateMealById(eq(id), any(MealModel.class))).thenReturn(null);
+        /* Act */
+        ResponseEntity<MealUpdateResponse> result = mealController.updateMealById(1L, request);
 
-        // Act
-        ResponseEntity<MealUpdateResponse> result = mealController.updateMealById(id, request);
-
-        // Assert
+        /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
     }
 
     @Test
-    void WhenCalled_DeleteMeal_ShouldDeleteMealAndReturnNoContent() {
-        // Arrange
+    void WhenCalled_DeleteMeal_ShouldReturnNoContent() {
+        /* Arrange */
         Long id = 1L;
 
-        // Act
+        /* Act */
         ResponseEntity<Void> result = mealController.deleteMeal(id);
 
-        // Assert
+        /* Assert */
         verify(mealService).deleteMealById(id);
         assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull(result.getBody());
+    }
+
+    private MealModel meal(Long id, String name, String description, String price) {
+        return new MealModel(id, name, description, new BigDecimal(price), new MealCategoryModel(5L, "Main course"));
     }
 }

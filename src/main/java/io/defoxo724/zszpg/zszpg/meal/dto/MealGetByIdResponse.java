@@ -19,9 +19,11 @@ public class MealGetByIdResponse {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long mealCategoryId;
 
     public static MealGetByIdResponse fromModel(MealModel meal) {
-        return new MealGetByIdResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice());
+        return new MealGetByIdResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice(),
+                meal.getMealCategory().getId());
     }
 
 }

@@ -19,9 +19,11 @@ public class MealGetAllResponseListElement {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long mealCategoryId;
 
     public static MealGetAllResponseListElement fromModel(MealModel meal) {
-        return new MealGetAllResponseListElement(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice());
+        return new MealGetAllResponseListElement(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice(),
+                meal.getMealCategory().getId());
     }
 
 }
