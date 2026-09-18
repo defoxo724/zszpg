@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import io.defoxo724.zszpg.zszpg.cart_item.CartItemModel;
 import io.defoxo724.zszpg.zszpg.cart_item.CartItemService;
+import io.defoxo724.zszpg.zszpg.user.UserModel;
 
 @Service
 public class CartService {
@@ -19,6 +22,7 @@ public class CartService {
     }
 
     public CartModel createCart(CartModel cart) {
+        cart.setOwner(getCurrentUser());
         return cartRepository.save(cart);
     }
 
@@ -69,5 +73,13 @@ public class CartService {
             return null;
         }
         return cart;
+    }
+
+    private UserModel getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel user)) {
+            return null;
+        }
+        return user;
     }
 }

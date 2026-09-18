@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import io.defoxo724.zszpg.zszpg.cart.dto.AddMealToCartResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartCreateRequest;
@@ -38,6 +39,7 @@ public class CartController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORDERER')")
     @Operation(summary = "Create a cart", description = "Creates an empty shopping cart with an optional customer comment.")
     @ApiResponse(responseCode = "200", description = "The cart was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartCreateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[]}")))
     public ResponseEntity<CartCreateResponse> createCart(
@@ -47,6 +49,7 @@ public class CartController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@cartAuthorization.canAccess(#id, authentication)")
     @Operation(summary = "Get a cart", description = "Returns a cart and all of its meal items.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The cart was found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartGetByIdResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[{\"id\":3,\"mealId\":7,\"quantity\":2}]}"))),
@@ -62,6 +65,7 @@ public class CartController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all carts", description = "Returns all carts together with their meal items. When no carts exist, the carts field contains an empty list.")
     @ApiResponse(responseCode = "200", description = "The cart list was returned.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartGetAllResponse.class), examples = @ExampleObject(value = "{\"carts\":[{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[{\"id\":3,\"mealId\":7,\"quantity\":2}]}]}")))
     public ResponseEntity<CartGetAllResponse> getAllCarts() {
@@ -69,6 +73,7 @@ public class CartController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a cart", description = "Replaces the comment of the cart with the specified identifier without changing its meal items.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The cart was updated.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartUpdateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"Extra spicy\",\"cartItems\":[{\"id\":3,\"mealId\":7,\"quantity\":2}]}"))),
@@ -85,6 +90,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@cartAuthorization.canAccess(#id, authentication)")
     @Operation(summary = "Delete a cart", description = "Deletes the specified cart and all of its meal items. The operation returns no response body.")
     @ApiResponse(responseCode = "204", description = "The delete request was completed.", content = @Content)
     public ResponseEntity<Void> deleteCart(
@@ -94,6 +100,7 @@ public class CartController {
     }
 
     @PostMapping("/{cartId}/meals/{mealId}")
+    @PreAuthorize("@cartAuthorization.canAccess(#cartId, authentication)")
     @Operation(summary = "Add a meal to a cart", description = "Creates a cart item with quantity 1, or increments its quantity when the meal is already present in the cart.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal was added to the cart.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AddMealToCartResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[{\"id\":3,\"mealId\":7,\"quantity\":2}]}"))),
@@ -110,6 +117,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartId}/meals/{mealId}")
+    @PreAuthorize("@cartAuthorization.canAccess(#cartId, authentication)")
     @Operation(summary = "Remove a meal from a cart", description = "Decrements the cart item quantity, or removes the item completely when its quantity is 1.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "One unit of the meal was removed from the cart.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RemoveMealFromCartResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[{\"id\":3,\"mealId\":7,\"quantity\":1}]}"))),

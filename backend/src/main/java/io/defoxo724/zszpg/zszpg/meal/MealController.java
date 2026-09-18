@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/meals")
@@ -37,6 +38,7 @@ public class MealController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a meal", description = "Creates a new meal and assigns it to the category identified by mealCategoryId.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealCreateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Margherita pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and basil\",\"price\":29.90,\"mealCategoryId\":2}"))),
@@ -52,6 +54,7 @@ public class MealController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORDERER')")
     @Operation(summary = "Get a meal", description = "Returns the details of the meal with the specified identifier.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal was found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealGetByIdResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Margherita pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and basil\",\"price\":29.90,\"mealCategoryId\":2}"))),
@@ -67,6 +70,7 @@ public class MealController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORDERER')")
     @Operation(summary = "Get all meals", description = "Returns all meals. When no meals exist, the meals field contains an empty list.")
     @ApiResponse(responseCode = "200", description = "The meal list was returned.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealGetAllResponse.class), examples = @ExampleObject(value = "{\"meals\":[{\"id\":1,\"name\":\"Margherita pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and basil\",\"price\":29.90,\"mealCategoryId\":2}]}")))
     public ResponseEntity<MealGetAllResponse> getAllMeals() {
@@ -74,6 +78,7 @@ public class MealController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a meal", description = "Replaces the data of the specified meal and assigns it to the category identified by mealCategoryId.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal was updated.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealUpdateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Pepperoni pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and pepperoni\",\"price\":31.50,\"mealCategoryId\":2}"))),
@@ -91,6 +96,7 @@ public class MealController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a meal", description = "Deletes the meal with the specified identifier. The operation returns no response body.")
     @ApiResponse(responseCode = "204", description = "The delete request was completed.", content = @Content)
     public ResponseEntity<Void> deleteMeal(
