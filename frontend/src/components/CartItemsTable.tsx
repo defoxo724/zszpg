@@ -1,3 +1,5 @@
+import Button from 'react-bootstrap/Button'
+import Table from 'react-bootstrap/Table'
 import type { CartItem, Meal } from '../types'
 
 interface CartItemsTableProps {
@@ -16,6 +18,7 @@ const CartItemsTable = ({ items, meals, onAdd, onRemove }: CartItemsTableProps) 
 
 	return (
 		<>
+			{items.length === 0 && <p>Twój koszyk jest pusty.</p>}
 			<Table responsive>
 				<thead>
 					<tr>
@@ -60,5 +63,3 @@ const CartItemsTable = ({ items, meals, onAdd, onRemove }: CartItemsTableProps) 
 	)
 }
 export default CartItemsTable
-import Button from 'react-bootstrap/Button'
-import Table from 'react-bootstrap/Table'

@@ -31,9 +31,11 @@ const ApplicationLayout = () => {
 							<Nav.Link as={NavLink} to="/categories">
 								Kategorie
 							</Nav.Link>
-							<Nav.Link as={NavLink} to="/carts">
-								Koszyki
-							</Nav.Link>
+							{user.type === 'ORDERER' && (
+								<Nav.Link as={NavLink} to="/cart">
+									Koszyk
+								</Nav.Link>
+							)}
 						</Nav>
 					)}
 					<Stack direction="horizontal" gap={3} className="text-light">

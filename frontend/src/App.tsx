@@ -20,7 +20,8 @@ const App = () => (
 					<Route index element={<Navigate to="/meals" replace />} />
 					<Route path="/meals" element={<MealsPage />} />
 					<Route path="/categories" element={<CategoriesPage />} />
-					<Route path="/carts" element={<CartsPage />} />
+					<Route path="/cart" element={<CartsPage />} />
+					<Route path="/carts" element={<Navigate to="/cart" replace />} />
 					<Route path="/carts/:cartId" element={<CartDetailsPage />} />
 				</Route>
 				<Route path="*" element={<NotFoundPage />} />
