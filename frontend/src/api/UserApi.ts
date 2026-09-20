@@ -1,0 +1,30 @@
+import type { User } from '../types'
+import { axiosConfig } from './axiosConfig'
+
+export class UserApi {
+	static async login(loginValue: string, password: string) {
+		const response = await axiosConfig.post<User>('/users/login', {
+			login: loginValue,
+			password,
+		})
+		return response.data
+	}
+
+	static async register(loginValue: string, password: string) {
+		const response = await axiosConfig.post<User>('/users/register', {
+			login: loginValue,
+			password,
+		})
+		return response.data
+	}
+
+	static async logout() {
+		const response = await axiosConfig.post<{ message: string }>('/users/logout')
+		return response.data
+	}
+
+	static async getSession() {
+		const response = await axiosConfig.get<User>('/users/session')
+		return response.data
+	}
+}

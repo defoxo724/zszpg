@@ -25,11 +25,14 @@ public class CartItemModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "meal_id", nullable = false)
     private MealModel meal;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "cart_id", nullable = false)
     private CartModel cart;
+
     private Integer quantity;
 }

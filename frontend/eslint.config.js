@@ -6,17 +6,23 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-    ],
-    languageOptions: {
-      globals: globals.browser,
-    },
-  },
+	globalIgnores(['dist']),
+	{
+		files: ['**/*.{ts,tsx}'],
+		extends: [
+			js.configs.recommended,
+			tseslint.configs.recommended,
+			reactHooks.configs.flat.recommended,
+			reactRefresh.configs.vite,
+		],
+		languageOptions: {
+			globals: globals.browser,
+		},
+		rules: {
+			indent: ['error', 'tab', { SwitchCase: 1 }],
+			'no-trailing-spaces': 'error',
+			'react-hooks/set-state-in-effect': 'off',
+			'react-refresh/only-export-components': 'off',
+		},
+	},
 ])

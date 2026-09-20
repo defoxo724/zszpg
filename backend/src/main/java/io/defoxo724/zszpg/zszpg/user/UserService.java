@@ -28,7 +28,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserModel createAdmin(String login, String password) {
-        if (userRepository.existsByLogin(login)) {
+        if (userRepository.existsByType(UserType.ADMIN)) {
             return null;
         }
         return userRepository.save(new UserModel(null, login, passwordEncoder.encode(password), UserType.ADMIN));
