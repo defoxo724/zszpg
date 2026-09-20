@@ -1,5 +1,6 @@
 package io.defoxo724.zszpg.zszpg.cart;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,9 +22,17 @@ public class CartService {
         this.cartItemService = cartItemService;
     }
 
-    public CartModel createCart(CartModel cart) {
-        cart.setOwner(getCurrentUser());
+    public CartModel createCartForUser(UserModel user) {
+        CartModel cart = new CartModel(null, "", new ArrayList<>(), user);
         return cartRepository.save(cart);
+    }
+
+    public CartModel getCurrentUserCart() {
+        UserModel currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return null;
+        }
+        return cartRepository.findByOwnerId(currentUser.getId()).orElse(null);
     }
 
     public CartModel getCartById(Long id) {
@@ -41,13 +50,6 @@ public class CartService {
         }
         existingCart.setComment(cart.getComment());
         return cartRepository.save(existingCart);
-    }
-
-    public void deleteCartById(Long id) {
-        if (cartRepository.findById(id).isEmpty()) {
-            return;
-        }
-        cartRepository.deleteById(id);
     }
 
     @Transactional

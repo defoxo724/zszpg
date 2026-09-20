@@ -8,10 +8,7 @@ const StatusMessage = ({ message, variant = 'danger' }: StatusMessageProps) => {
 		return null
 	}
 
-	return (
-		<div className={`alert alert-${variant}`} role="alert">
-			{message}
-		</div>
-	)
+	return <Alert variant={variant}>{message}</Alert>
 }
 export default StatusMessage
+import Alert from 'react-bootstrap/Alert'

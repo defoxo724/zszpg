@@ -1,4 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Form from 'react-bootstrap/Form'
+import Stack from 'react-bootstrap/Stack'
 import type { MealCategory } from '../types'
 
 interface MealCategoryFormProps {
@@ -21,26 +25,27 @@ const MealCategoryForm = ({ categoryBeingEdited, onSave, onCancel }: MealCategor
 	}
 
 	return (
-		<form className="card card-body mb-4" onSubmit={handleSubmit}>
-			<h2 className="h5">{categoryBeingEdited ? 'Edytuj kategorię' : 'Nowa kategoria'}</h2>
-			<div className="d-flex gap-2">
-				<input
-					className="form-control"
-					placeholder="Nazwa kategorii"
-					value={name}
-					onChange={(event) => setName(event.target.value)}
-					required
-				/>
-				<button className="btn btn-primary">
-					{categoryBeingEdited ? 'Zapisz' : 'Dodaj'}
-				</button>
-				{categoryBeingEdited && (
-					<button type="button" className="btn btn-secondary" onClick={onCancel}>
-						Anuluj
-					</button>
-				)}
-			</div>
-		</form>
+		<Card className="mb-4">
+			<Card.Body as={Form} onSubmit={handleSubmit}>
+				<Card.Title as="h2" className="h5">
+					{categoryBeingEdited ? 'Edytuj kategorię' : 'Nowa kategoria'}
+				</Card.Title>
+				<Stack direction="horizontal" gap={2}>
+					<Form.Control
+						placeholder="Nazwa kategorii"
+						value={name}
+						onChange={(event) => setName(event.target.value)}
+						required
+					/>
+					<Button type="submit">{categoryBeingEdited ? 'Zapisz' : 'Dodaj'}</Button>
+					{categoryBeingEdited && (
+						<Button type="button" variant="secondary" onClick={onCancel}>
+							Anuluj
+						</Button>
+					)}
+				</Stack>
+			</Card.Body>
+		</Card>
 	)
 }
 export default MealCategoryForm

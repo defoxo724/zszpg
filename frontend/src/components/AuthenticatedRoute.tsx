@@ -6,7 +6,12 @@ const AuthenticatedRoute = () => {
 	const location = useLocation()
 
 	if (loading) {
-		return <div className="text-center py-5">Ładowanie sesji...</div>
+		return (
+			<div className="text-center py-5">
+				<Spinner className="me-2" size="sm" />
+				Ładowanie sesji...
+			</div>
+		)
 	}
 
 	if (!user) {
@@ -24,3 +29,4 @@ const AuthenticatedRoute = () => {
 	return <Outlet />
 }
 export default AuthenticatedRoute
+import Spinner from 'react-bootstrap/Spinner'

@@ -1,10 +1,15 @@
+import Button from 'react-bootstrap/Button'
+import Container from 'react-bootstrap/Container'
+import Nav from 'react-bootstrap/Nav'
+import Navbar from 'react-bootstrap/Navbar'
+import Stack from 'react-bootstrap/Stack'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const ApplicationLayout = () => {
 	const { user, signOut } = useAuth()
 	const navigate = useNavigate()
-	const navbarBackgroundClass = user?.type === 'ADMIN' ? 'bg-danger' : 'bg-dark'
+	const navbarBackground = user?.type === 'ADMIN' ? 'danger' : 'dark'
 
 	const handleSignOut = async () => {
 		await signOut()
@@ -13,53 +18,58 @@ const ApplicationLayout = () => {
 
 	return (
 		<>
-			<nav className={`navbar navbar-expand navbar-dark ${navbarBackgroundClass}`}>
-				<div className="container page-container">
-					<NavLink className="navbar-brand" to="/">
+			<Navbar bg={navbarBackground} variant="dark" expand>
+				<Container className="page-container">
+					<Navbar.Brand as={NavLink} to="/">
 						ZSZPG
-					</NavLink>
+					</Navbar.Brand>
 					{user && (
-						<div className="navbar-nav me-auto">
-							<NavLink className="nav-link" to="/meals">
+						<Nav className="me-auto">
+							<Nav.Link as={NavLink} to="/meals">
 								Posiłki
-							</NavLink>
-							<NavLink className="nav-link" to="/categories">
+							</Nav.Link>
+							<Nav.Link as={NavLink} to="/categories">
 								Kategorie
-							</NavLink>
-							<NavLink className="nav-link" to="/carts">
+							</Nav.Link>
+							<Nav.Link as={NavLink} to="/carts">
 								Koszyki
-							</NavLink>
-						</div>
+							</Nav.Link>
+						</Nav>
 					)}
-					<div className="d-flex align-items-center gap-3 text-light">
+					<Stack direction="horizontal" gap={3} className="text-light">
 						{user ? (
 							<>
 								<span>
 									{user.login} ({user.type})
 								</span>
-								<button
-									className="btn btn-outline-light btn-sm"
-									onClick={handleSignOut}
-								>
+								<Button variant="outline-light" size="sm" onClick={handleSignOut}>
 									Wyloguj
-								</button>
+								</Button>
 							</>
 						) : (
 							<>
-								<NavLink className="btn btn-outline-light btn-sm" to="/login">
+								<Button
+									variant="outline-light"
+									size="sm"
+									onClick={() => navigate('/login')}
+								>
 									Logowanie
-								</NavLink>
-								<NavLink className="btn btn-light btn-sm" to="/register">
+								</Button>
+								<Button
+									variant="light"
+									size="sm"
+									onClick={() => navigate('/register')}
+								>
 									Rejestracja
-								</NavLink>
+								</Button>
 							</>
 						)}
-					</div>
-				</div>
-			</nav>
-			<main className="container page-container py-4">
+					</Stack>
+				</Container>
+			</Navbar>
+			<Container as="main" className="page-container py-4">
 				<Outlet />
-			</main>
+			</Container>
 		</>
 	)
 }

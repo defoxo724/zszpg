@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import Stack from 'react-bootstrap/Stack'
 import { Link, useParams } from 'react-router-dom'
 import { CartApi } from '../api/CartApi'
 import { MealApi } from '../api/MealApi'
@@ -74,22 +77,23 @@ const CartDetailsPage = () => {
 					<p>
 						<strong>Komentarz:</strong> {cart.comment || 'brak'}
 					</p>
-					<form className="d-flex gap-2 mb-4" onSubmit={handleAddSelectedMeal}>
-						<select
-							className="form-select"
-							value={selectedMealId}
-							onChange={(event) => setSelectedMealId(Number(event.target.value))}
-						>
-							{meals.map((meal) => (
-								<option key={meal.id} value={meal.id}>
-									{meal.name} — {Number(meal.price).toFixed(2)} zł
-								</option>
-							))}
-						</select>
-						<button className="btn btn-primary" disabled={!meals.length}>
-							Dodaj posiłek
-						</button>
-					</form>
+					<Form onSubmit={handleAddSelectedMeal} className="mb-4">
+						<Stack direction="horizontal" gap={2}>
+							<Form.Select
+								value={selectedMealId}
+								onChange={(event) => setSelectedMealId(Number(event.target.value))}
+							>
+								{meals.map((meal) => (
+									<option key={meal.id} value={meal.id}>
+										{meal.name} — {Number(meal.price).toFixed(2)} zł
+									</option>
+								))}
+							</Form.Select>
+							<Button type="submit" disabled={!meals.length}>
+								Dodaj posiłek
+							</Button>
+						</Stack>
+					</Form>
 					<CartItemsTable
 						items={cart.cartItems}
 						meals={meals}

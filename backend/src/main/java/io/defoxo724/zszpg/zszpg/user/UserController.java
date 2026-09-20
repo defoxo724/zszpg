@@ -105,6 +105,12 @@ public class UserController {
                     "Hasło musi mieć od %d do %d znaków.".formatted(passwordMinLength, passwordMaxLength));
         }
 
+        if (request.getPasswordConfirmation() == null || request.getPasswordConfirmation().isBlank()) {
+            fieldErrors.put("passwordConfirmation", "Powtórzenie hasła nie może być puste.");
+        } else if (!request.getPasswordConfirmation().equals(password)) {
+            fieldErrors.put("passwordConfirmation", "Hasła nie są takie same.");
+        }
+
         return fieldErrors;
     }
 }

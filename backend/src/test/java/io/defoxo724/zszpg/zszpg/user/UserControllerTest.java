@@ -51,7 +51,7 @@ class UserControllerTest {
     @Test
     void WhenCalled_Register_WithValidRequest_ShouldReturnCreatedUser() {
         /* Arrange */
-        RegisterNewUserRequest request = new RegisterNewUserRequest("customer", "password123");
+        RegisterNewUserRequest request = new RegisterNewUserRequest("customer", "password123", "password123");
         UserModel user = new UserModel(1L, "customer", "encoded-password", UserType.ORDERER);
         when(userService.register(request)).thenReturn(user);
 
@@ -66,7 +66,7 @@ class UserControllerTest {
     @Test
     void WhenCalled_Register_WithInvalidLengths_ShouldReturnFieldErrors() {
         /* Arrange */
-        RegisterNewUserRequest request = new RegisterNewUserRequest("ab", "short");
+        RegisterNewUserRequest request = new RegisterNewUserRequest("ab", "short", "short");
         RegisterNewUserErrorResponse expectedBody = new RegisterNewUserErrorResponse(Map.of(
                 "login", "Login musi mieć od 3 do 50 znaków.",
                 "password", "Hasło musi mieć od 8 do 72 znaków."));
@@ -83,10 +83,11 @@ class UserControllerTest {
     @Test
     void WhenCalled_Register_WithBlankFields_ShouldReturnFieldErrors() {
         /* Arrange */
-        RegisterNewUserRequest request = new RegisterNewUserRequest(" ", null);
+        RegisterNewUserRequest request = new RegisterNewUserRequest(" ", null, null);
         RegisterNewUserErrorResponse expectedBody = new RegisterNewUserErrorResponse(Map.of(
                 "login", "Login nie może być pusty.",
-                "password", "Hasło nie może być puste."));
+                "password", "Hasło nie może być puste.",
+                "passwordConfirmation", "Powtórzenie hasła nie może być puste."));
 
         /* Act */
         ResponseEntity<?> result = userController.register(request);
@@ -98,9 +99,24 @@ class UserControllerTest {
     }
 
     @Test
+    void WhenCalled_Register_WithDifferentPasswords_ShouldReturnConfirmationError() {
+        /* Arrange */
+        RegisterNewUserRequest request = new RegisterNewUserRequest("customer", "password123", "different123");
+
+        /* Act */
+        ResponseEntity<?> result = userController.register(request);
+
+        /* Assert */
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals(new RegisterNewUserErrorResponse(Map.of("passwordConfirmation", "Hasła nie są takie same.")),
+                result.getBody());
+        verifyNoInteractions(userService);
+    }
+
+    @Test
     void WhenCalled_Register_WithExistingLogin_ShouldReturnLoginError() {
         /* Arrange */
-        RegisterNewUserRequest request = new RegisterNewUserRequest("customer", "password123");
+        RegisterNewUserRequest request = new RegisterNewUserRequest("customer", "password123", "password123");
         when(userService.register(request)).thenReturn(null);
 
         /* Act */

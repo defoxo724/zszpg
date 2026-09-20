@@ -3,7 +3,6 @@ package io.defoxo724.zszpg.zszpg.cart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -18,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import io.defoxo724.zszpg.zszpg.cart.dto.AddMealToCartResponse;
-import io.defoxo724.zszpg.zszpg.cart.dto.CartCreateRequest;
-import io.defoxo724.zszpg.zszpg.cart.dto.CartCreateResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartGetAllResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartGetByIdResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartUpdateRequest;
@@ -32,21 +29,6 @@ class CartControllerTest {
     private CartService cartService;
     @InjectMocks
     private CartController cartController;
-
-    @Test
-    void WhenCalled_CreateCart_ShouldReturnCreatedCart() {
-        /* Arrange */
-        CartCreateRequest request = new CartCreateRequest("No onions");
-        CartModel savedCart = cart(1L, "No onions");
-        when(cartService.createCart(any(CartModel.class))).thenReturn(savedCart);
-
-        /* Act */
-        ResponseEntity<CartCreateResponse> result = cartController.createCart(request);
-
-        /* Assert */
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(CartCreateResponse.fromModel(savedCart), result.getBody());
-    }
 
     @Test
     void WhenCalled_GetCartById_WithExistingCart_ShouldReturnCart() {
@@ -69,6 +51,33 @@ class CartControllerTest {
 
         /* Act */
         ResponseEntity<CartGetByIdResponse> result = cartController.getCartById(1L);
+
+        /* Assert */
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertNull(result.getBody());
+    }
+
+    @Test
+    void WhenCalled_GetCurrentUserCart_WithExistingCart_ShouldReturnCart() {
+        /* Arrange */
+        CartModel cart = cart(1L, "No onions");
+        when(cartService.getCurrentUserCart()).thenReturn(cart);
+
+        /* Act */
+        ResponseEntity<CartGetByIdResponse> result = cartController.getCurrentUserCart();
+
+        /* Assert */
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(CartGetByIdResponse.fromModel(cart), result.getBody());
+    }
+
+    @Test
+    void WhenCalled_GetCurrentUserCart_WithMissingCart_ShouldReturnNotFound() {
+        /* Arrange */
+        when(cartService.getCurrentUserCart()).thenReturn(null);
+
+        /* Act */
+        ResponseEntity<CartGetByIdResponse> result = cartController.getCurrentUserCart();
 
         /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
@@ -116,20 +125,6 @@ class CartControllerTest {
 
         /* Assert */
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-        assertNull(result.getBody());
-    }
-
-    @Test
-    void WhenCalled_DeleteCart_ShouldReturnNoContent() {
-        /* Arrange */
-        Long id = 1L;
-
-        /* Act */
-        ResponseEntity<Void> result = cartController.deleteCart(id);
-
-        /* Assert */
-        verify(cartService).deleteCartById(id);
-        assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull(result.getBody());
     }
 

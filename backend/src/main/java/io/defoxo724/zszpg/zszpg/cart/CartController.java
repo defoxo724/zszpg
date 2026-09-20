@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import io.defoxo724.zszpg.zszpg.cart.dto.AddMealToCartResponse;
-import io.defoxo724.zszpg.zszpg.cart.dto.CartCreateRequest;
-import io.defoxo724.zszpg.zszpg.cart.dto.CartCreateResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartGetAllResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartGetByIdResponse;
 import io.defoxo724.zszpg.zszpg.cart.dto.CartUpdateRequest;
@@ -38,16 +36,6 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ORDERER')")
-    @Operation(summary = "Create a cart", description = "Creates an empty shopping cart with an optional customer comment.")
-    @ApiResponse(responseCode = "200", description = "The cart was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartCreateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"comment\":\"No onions\",\"cartItems\":[]}")))
-    public ResponseEntity<CartCreateResponse> createCart(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The data of the cart to create.", required = true, content = @Content(schema = @Schema(implementation = CartCreateRequest.class), examples = @ExampleObject(value = "{\"comment\":\"No onions\"}"))) @RequestBody CartCreateRequest cart) {
-        CartModel createdCart = cartService.createCart(cart.toModel());
-        return ResponseEntity.ok(CartCreateResponse.fromModel(createdCart));
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("@cartAuthorization.canAccess(#id, authentication)")
     @Operation(summary = "Get a cart", description = "Returns a cart and all of its meal items.")
@@ -58,6 +46,21 @@ public class CartController {
     public ResponseEntity<CartGetByIdResponse> getCartById(
             @Parameter(description = "The cart identifier.", example = "1", required = true) @PathVariable Long id) {
         CartModel cart = cartService.getCartById(id);
+        if (cart == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(CartGetByIdResponse.fromModel(cart));
+    }
+
+    @GetMapping("/mine")
+    @PreAuthorize("hasRole('ORDERER')")
+    @Operation(summary = "Get current user's cart", description = "Returns the single cart assigned to the authenticated ordering user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "The user's cart was returned.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartGetByIdResponse.class))),
+            @ApiResponse(responseCode = "404", description = "The authenticated user has no cart.", content = @Content)
+    })
+    public ResponseEntity<CartGetByIdResponse> getCurrentUserCart() {
+        CartModel cart = cartService.getCurrentUserCart();
         if (cart == null) {
             return ResponseEntity.notFound().build();
         }
@@ -87,16 +90,6 @@ public class CartController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(CartUpdateResponse.fromModel(updatedCart));
-    }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("@cartAuthorization.canAccess(#id, authentication)")
-    @Operation(summary = "Delete a cart", description = "Deletes the specified cart and all of its meal items. The operation returns no response body.")
-    @ApiResponse(responseCode = "204", description = "The delete request was completed.", content = @Content)
-    public ResponseEntity<Void> deleteCart(
-            @Parameter(description = "The identifier of the cart to delete.", example = "1", required = true) @PathVariable Long id) {
-        cartService.deleteCartById(id);
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{cartId}/meals/{mealId}")

@@ -1,4 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
+import Row from 'react-bootstrap/Row'
+import Stack from 'react-bootstrap/Stack'
 import type { Meal, MealCategory, MealInput } from '../types'
 
 interface MealEditorFormProps {
@@ -55,70 +61,72 @@ const MealEditorForm = ({ categories, mealBeingEdited, onSave, onCancel }: MealE
 	}
 
 	return (
-		<form className="card card-body mb-4" onSubmit={handleSubmit}>
-			<h2 className="h5">{mealBeingEdited ? 'Edytuj posiłek' : 'Nowy posiłek'}</h2>
-			<div className="row g-2">
-				<div className="col-md-3">
-					<input
-						className="form-control"
-						placeholder="Nazwa"
-						value={meal.name}
-						onChange={(event) => updateMealField('name', event.target.value)}
-						required
-					/>
-				</div>
-				<div className="col-md-4">
-					<input
-						className="form-control"
-						placeholder="Opis"
-						value={meal.description}
-						onChange={(event) => updateMealField('description', event.target.value)}
-						required
-					/>
-				</div>
-				<div className="col-md-2">
-					<input
-						className="form-control"
-						type="number"
-						min="0"
-						step="0.01"
-						placeholder="Cena"
-						value={meal.price}
-						onChange={(event) => updateMealField('price', Number(event.target.value))}
-						required
-					/>
-				</div>
-				<div className="col-md-3">
-					<select
-						className="form-select"
-						value={meal.mealCategoryId}
-						onChange={(event) =>
-							updateMealField('mealCategoryId', Number(event.target.value))
-						}
-						required
-					>
-						<option value={0} disabled>
-							Wybierz kategorię
-						</option>
-						{categories.map((category) => (
-							<option key={category.id} value={category.id}>
-								{category.name}
+		<Card className="mb-4">
+			<Card.Body as={Form} onSubmit={handleSubmit}>
+				<Card.Title as="h2" className="h5">
+					{mealBeingEdited ? 'Edytuj posiłek' : 'Nowy posiłek'}
+				</Card.Title>
+				<Row className="g-2">
+					<Col md={3}>
+						<Form.Control
+							placeholder="Nazwa"
+							value={meal.name}
+							onChange={(event) => updateMealField('name', event.target.value)}
+							required
+						/>
+					</Col>
+					<Col md={4}>
+						<Form.Control
+							placeholder="Opis"
+							value={meal.description}
+							onChange={(event) => updateMealField('description', event.target.value)}
+							required
+						/>
+					</Col>
+					<Col md={2}>
+						<Form.Control
+							type="number"
+							min="0"
+							step="0.01"
+							placeholder="Cena"
+							value={meal.price}
+							onChange={(event) =>
+								updateMealField('price', Number(event.target.value))
+							}
+							required
+						/>
+					</Col>
+					<Col md={3}>
+						<Form.Select
+							value={meal.mealCategoryId}
+							onChange={(event) =>
+								updateMealField('mealCategoryId', Number(event.target.value))
+							}
+							required
+						>
+							<option value={0} disabled>
+								Wybierz kategorię
 							</option>
-						))}
-					</select>
-				</div>
-			</div>
-			<div className="mt-3 d-flex gap-2">
-				<button className="btn btn-primary" disabled={!categories.length}>
-					{mealBeingEdited ? 'Zapisz' : 'Dodaj'}
-				</button>
-				{mealBeingEdited && (
-					<button type="button" className="btn btn-secondary" onClick={onCancel}>
-						Anuluj
-					</button>
-				)}
-			</div>
-		</form>
+							{categories.map((category) => (
+								<option key={category.id} value={category.id}>
+									{category.name}
+								</option>
+							))}
+						</Form.Select>
+					</Col>
+				</Row>
+				<Stack direction="horizontal" gap={2} className="mt-3">
+					<Button type="submit" disabled={!categories.length}>
+						{mealBeingEdited ? 'Zapisz' : 'Dodaj'}
+					</Button>
+					{mealBeingEdited && (
+						<Button type="button" variant="secondary" onClick={onCancel}>
+							Anuluj
+						</Button>
+					)}
+				</Stack>
+			</Card.Body>
+		</Card>
 	)
 }
 export default MealEditorForm

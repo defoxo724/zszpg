@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import Button from 'react-bootstrap/Button'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import ListGroup from 'react-bootstrap/ListGroup'
 import { CategoryApi } from '../api/CategoryApi'
 import MealCategoryForm from '../components/MealCategoryForm'
 import StatusMessage from '../components/StatusMessage'
@@ -66,32 +69,32 @@ const CategoriesPage = () => {
 					onCancel={() => setCategoryBeingEdited(null)}
 				/>
 			)}
-			<div className="list-group">
+			<ListGroup>
 				{categories.map((category) => (
-					<div
-						className="list-group-item d-flex justify-content-between align-items-center"
+					<ListGroup.Item
+						className="d-flex justify-content-between align-items-center"
 						key={category.id}
 					>
 						<span>{category.name}</span>
 						{isAdmin && (
-							<span>
-								<button
-									className="btn btn-sm btn-outline-primary me-2"
+							<ButtonGroup size="sm">
+								<Button
+									variant="outline-primary"
 									onClick={() => setCategoryBeingEdited(category)}
 								>
 									Edytuj
-								</button>
-								<button
-									className="btn btn-sm btn-outline-danger"
+								</Button>
+								<Button
+									variant="outline-danger"
 									onClick={() => handleDeleteCategory(category.id)}
 								>
 									Usuń
-								</button>
-							</span>
+								</Button>
+							</ButtonGroup>
 						)}
-					</div>
+					</ListGroup.Item>
 				))}
-			</div>
+			</ListGroup>
 			{!categories.length && <p>Brak kategorii.</p>}
 		</>
 	)

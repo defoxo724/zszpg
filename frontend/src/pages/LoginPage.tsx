@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Card from 'react-bootstrap/Card'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import UserCredentialsForm from '../components/UserCredentialsForm'
 import StatusMessage from '../components/StatusMessage'
@@ -30,16 +31,18 @@ const LoginPage = () => {
 	}
 
 	return (
-		<div className="card auth-card">
-			<div className="card-body">
-				<h1 className="h3 mb-3">Logowanie</h1>
+		<Card className="auth-card">
+			<Card.Body>
+				<Card.Title as="h1" className="h3 mb-3">
+					Logowanie
+				</Card.Title>
 				<StatusMessage message={error} />
 				<UserCredentialsForm buttonLabel="Zaloguj" onSubmit={handleLogin} />
 				<p className="mt-3 mb-0">
 					Nie masz konta? <Link to="/register">Zarejestruj się</Link>
 				</p>
-			</div>
-		</div>
+			</Card.Body>
+		</Card>
 	)
 }
 export default LoginPage

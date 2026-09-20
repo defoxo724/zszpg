@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useState } from 'react'
+import Card from 'react-bootstrap/Card'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import {
 	UserApi,
@@ -11,7 +12,7 @@ import StatusMessage from '../components/StatusMessage'
 import { useAuth } from '../context/AuthContext'
 
 const RegisterPage = () => {
-	const { user } = useAuth()
+	const { user, signIn } = useAuth()
 	const navigate = useNavigate()
 	const [error, setError] = useState<string | null>(null)
 	const [fieldErrors, setFieldErrors] = useState<RegistrationFieldErrors>({})
@@ -20,13 +21,18 @@ const RegisterPage = () => {
 		return <Navigate to="/meals" replace />
 	}
 
-	const handleRegister = async (login: string, password: string) => {
+	const handleRegister = async (
+		login: string,
+		password: string,
+		passwordConfirmation: string,
+	) => {
 		setError(null)
 		setFieldErrors({})
 
 		try {
-			await UserApi.register(login, password)
-			navigate('/login', {
+			await UserApi.register(login, password, passwordConfirmation)
+			await signIn(login, password)
+			navigate('/meals', {
 				replace: true,
 			})
 		} catch (requestError) {
@@ -43,20 +49,23 @@ const RegisterPage = () => {
 	}
 
 	return (
-		<div className="card auth-card">
-			<div className="card-body">
-				<h1 className="h3 mb-3">Rejestracja</h1>
+		<Card className="auth-card">
+			<Card.Body>
+				<Card.Title as="h1" className="h3 mb-3">
+					Rejestracja
+				</Card.Title>
 				<StatusMessage message={error} />
 				<UserCredentialsForm
 					buttonLabel="Utwórz konto"
 					onSubmit={handleRegister}
 					fieldErrors={fieldErrors}
+					showPasswordConfirmation
 				/>
 				<p className="mt-3 mb-0">
 					Masz konto? <Link to="/login">Zaloguj się</Link>
 				</p>
-			</div>
-		</div>
+			</Card.Body>
+		</Card>
 	)
 }
 export default RegisterPage

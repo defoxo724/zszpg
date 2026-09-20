@@ -12,14 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import io.defoxo724.zszpg.zszpg.cart_item.CartItemModel;
 import io.defoxo724.zszpg.zszpg.cart_item.CartItemService;
+import io.defoxo724.zszpg.zszpg.user.UserModel;
+import io.defoxo724.zszpg.zszpg.user.UserType;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
@@ -30,19 +35,53 @@ class CartServiceTest {
     @InjectMocks
     private CartService cartService;
 
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
-    void WhenCalled_CreateCart_ShouldReturnSavedCart() {
+    void WhenCalled_CreateCartForUser_ShouldReturnSavedCart() {
         /* Arrange */
-        CartModel cart = cart(null, "No onions");
-        CartModel savedCart = cart(1L, "No onions");
-        when(cartRepository.save(cart)).thenReturn(savedCart);
+        UserModel user = new UserModel(1L, "customer", "password", UserType.ORDERER);
+        when(cartRepository.save(any(CartModel.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         /* Act */
-        CartModel result = cartService.createCart(cart);
+        CartModel result = cartService.createCartForUser(user);
 
         /* Assert */
-        assertSame(savedCart, result);
-        verify(cartRepository).save(cart);
+        assertSame(user, result.getOwner());
+        assertEquals("", result.getComment());
+        assertEquals(List.of(), result.getCartItems());
+        verify(cartRepository).save(result);
+    }
+
+    @Test
+    void WhenCalled_GetCurrentUserCart_WithAuthenticatedUser_ShouldReturnOwnedCart() {
+        /* Arrange */
+        UserModel user = new UserModel(1L, "customer", "password", UserType.ORDERER);
+        CartModel cart = new CartModel(1L, "", new ArrayList<>(), user);
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities()));
+        when(cartRepository.findByOwnerId(1L)).thenReturn(Optional.of(cart));
+
+        /* Act */
+        CartModel result = cartService.getCurrentUserCart();
+
+        /* Assert */
+        assertSame(cart, result);
+    }
+
+    @Test
+    void WhenCalled_GetCurrentUserCart_WithoutAuthenticatedUser_ShouldReturnNull() {
+        /* Arrange */
+
+        /* Act */
+        CartModel result = cartService.getCurrentUserCart();
+
+        /* Assert */
+        assertNull(result);
+        verify(cartRepository, never()).findByOwnerId(any());
     }
 
     @Test
@@ -112,30 +151,6 @@ class CartServiceTest {
         /* Assert */
         assertNull(result);
         verify(cartRepository, never()).save(any());
-    }
-
-    @Test
-    void WhenCalled_DeleteCartById_WithExistingCart_ShouldDeleteCart() {
-        /* Arrange */
-        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart(1L, "No onions")));
-
-        /* Act */
-        cartService.deleteCartById(1L);
-
-        /* Assert */
-        verify(cartRepository).deleteById(1L);
-    }
-
-    @Test
-    void WhenCalled_DeleteCartById_WithMissingCart_ShouldNotDeleteCart() {
-        /* Arrange */
-        when(cartRepository.findById(1L)).thenReturn(Optional.empty());
-
-        /* Act */
-        cartService.deleteCartById(1L);
-
-        /* Assert */
-        verify(cartRepository, never()).deleteById(1L);
     }
 
     @Test

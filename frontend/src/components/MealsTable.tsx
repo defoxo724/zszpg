@@ -15,8 +15,8 @@ const MealsTable = ({ meals, categories, isAdmin, onEdit, onDelete }: MealsTable
 	}
 
 	return (
-		<div className="table-responsive">
-			<table className="table table-striped">
+		<>
+			<Table responsive striped>
 				<thead>
 					<tr>
 						<th>Nazwa</th>
@@ -35,26 +35,31 @@ const MealsTable = ({ meals, categories, isAdmin, onEdit, onDelete }: MealsTable
 							<td>{getCategoryName(meal.mealCategoryId)}</td>
 							{isAdmin && (
 								<td className="text-nowrap">
-									<button
-										className="btn btn-sm btn-outline-primary me-2"
+									<Button
+										className="me-2"
+										size="sm"
+										variant="outline-primary"
 										onClick={() => onEdit(meal)}
 									>
 										Edytuj
-									</button>
-									<button
-										className="btn btn-sm btn-outline-danger"
+									</Button>
+									<Button
+										size="sm"
+										variant="outline-danger"
 										onClick={() => onDelete(meal.id)}
 									>
 										Usuń
-									</button>
+									</Button>
 								</td>
 							)}
 						</tr>
 					))}
 				</tbody>
-			</table>
+			</Table>
 			{!meals.length && <p>Brak posiłków.</p>}
-		</div>
+		</>
 	)
 }
 export default MealsTable
+import Button from 'react-bootstrap/Button'
+import Table from 'react-bootstrap/Table'

@@ -4,6 +4,7 @@ import { axiosConfig } from './axiosConfig'
 export interface RegistrationFieldErrors {
 	login?: string
 	password?: string
+	passwordConfirmation?: string
 }
 
 export interface RegistrationErrorResponse {
@@ -19,10 +20,11 @@ export class UserApi {
 		return response.data
 	}
 
-	static async register(loginValue: string, password: string) {
+	static async register(loginValue: string, password: string, passwordConfirmation: string) {
 		const response = await axiosConfig.post<User>('/users/register', {
 			login: loginValue,
 			password,
+			passwordConfirmation,
 		})
 		return response.data
 	}
