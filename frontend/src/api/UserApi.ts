@@ -1,6 +1,15 @@
 import type { User } from '../types'
 import { axiosConfig } from './axiosConfig'
 
+export interface RegistrationFieldErrors {
+	login?: string
+	password?: string
+}
+
+export interface RegistrationErrorResponse {
+	fieldErrors: RegistrationFieldErrors
+}
+
 export class UserApi {
 	static async login(loginValue: string, password: string) {
 		const response = await axiosConfig.post<User>('/users/login', {

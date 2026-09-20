@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 const ApplicationLayout = () => {
 	const { user, signOut } = useAuth()
 	const navigate = useNavigate()
+	const navbarBackgroundClass = user?.type === 'ADMIN' ? 'bg-danger' : 'bg-dark'
 
 	const handleSignOut = async () => {
 		await signOut()
@@ -12,7 +13,7 @@ const ApplicationLayout = () => {
 
 	return (
 		<>
-			<nav className="navbar navbar-expand navbar-dark bg-dark">
+			<nav className={`navbar navbar-expand navbar-dark ${navbarBackgroundClass}`}>
 				<div className="container page-container">
 					<NavLink className="navbar-brand" to="/">
 						ZSZPG
