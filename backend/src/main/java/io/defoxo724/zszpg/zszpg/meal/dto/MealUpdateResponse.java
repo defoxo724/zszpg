@@ -20,9 +20,14 @@ public class MealUpdateResponse {
     private String description;
     private BigDecimal price;
     private Long mealCategoryId;
+    private String imageUrl;
+
+    public MealUpdateResponse(Long id, String name, String description, BigDecimal price, Long mealCategoryId) {
+        this(id, name, description, price, mealCategoryId, null);
+    }
 
     public static MealUpdateResponse fromModel(MealModel meal) {
         return new MealUpdateResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice(),
-                meal.getMealCategory().getId());
+                meal.getMealCategory().getId(), meal.getImageUrl());
     }
 }

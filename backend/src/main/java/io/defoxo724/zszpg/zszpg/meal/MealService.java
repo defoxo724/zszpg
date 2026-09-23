@@ -1,6 +1,8 @@
 package io.defoxo724.zszpg.zszpg.meal;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.defoxo724.zszpg.zszpg.meal_category.MealCategoryModel;
 import io.defoxo724.zszpg.zszpg.meal_category.MealCategoryRepository;
@@ -11,13 +13,25 @@ import java.util.List;
 public class MealService {
     private final MealRepository mealRepository;
     private final MealCategoryRepository mealCategoryRepository;
+    private final MealImageStorageService mealImageStorageService;
 
     public MealService(MealRepository mealRepository, MealCategoryRepository mealCategoryRepository) {
+        this(mealRepository, mealCategoryRepository, null);
+    }
+
+    @Autowired
+    public MealService(MealRepository mealRepository, MealCategoryRepository mealCategoryRepository,
+            MealImageStorageService mealImageStorageService) {
         this.mealRepository = mealRepository;
         this.mealCategoryRepository = mealCategoryRepository;
+        this.mealImageStorageService = mealImageStorageService;
     }
 
     public MealModel createMeal(MealModel meal, Long mealCategoryId) {
+        return createMeal(meal, mealCategoryId, null);
+    }
+
+    public MealModel createMeal(MealModel meal, Long mealCategoryId, MultipartFile image) {
         if (mealCategoryId == null) {
             return null;
         }
@@ -26,6 +40,9 @@ public class MealService {
             return null;
         }
         meal.setMealCategory(mealCategory);
+        if (image != null && !image.isEmpty()) {
+            meal.setImageUrl(mealImageStorageService.store(image));
+        }
         return mealRepository.save(meal);
     }
 

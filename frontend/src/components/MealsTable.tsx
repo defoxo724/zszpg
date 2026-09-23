@@ -19,6 +19,7 @@ const MealsTable = ({ meals, categories, isAdmin, onEdit, onDelete }: MealsTable
 			<Table responsive striped>
 				<thead>
 					<tr>
+						<th>Obraz</th>
 						<th>Nazwa</th>
 						<th>Opis</th>
 						<th>Cena</th>
@@ -29,6 +30,19 @@ const MealsTable = ({ meals, categories, isAdmin, onEdit, onDelete }: MealsTable
 				<tbody>
 					{meals.map((meal) => (
 						<tr key={meal.id}>
+							<td>
+								{meal.imageUrl ? (
+									<img
+										src={meal.imageUrl}
+										alt={meal.name}
+										width={80}
+										height={60}
+										className="rounded object-fit-cover"
+									/>
+								) : (
+									<span className="text-secondary">Brak</span>
+								)}
+							</td>
 							<td>{meal.name}</td>
 							<td>{meal.description}</td>
 							<td>{Number(meal.price).toFixed(2)} zł</td>

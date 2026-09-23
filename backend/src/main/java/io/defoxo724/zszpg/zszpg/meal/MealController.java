@@ -4,9 +4,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import io.defoxo724.zszpg.zszpg.meal.dto.MealCreateRequest;
@@ -37,15 +40,24 @@ public class MealController {
         this.mealService = mealService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a meal", description = "Creates a new meal and assigns it to the category identified by mealCategoryId.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealCreateResponse.class), examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Margherita pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and basil\",\"price\":29.90,\"mealCategoryId\":2}"))),
             @ApiResponse(responseCode = "404", description = "The category identified by mealCategoryId does not exist.", content = @Content)
     })
-    public ResponseEntity<MealCreateResponse> createMeal(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new meal data and its category identifier.", required = true, content = @Content(schema = @Schema(implementation = MealCreateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Margherita pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and basil\",\"price\":29.90,\"mealCategoryId\":2}"))) @RequestBody MealCreateRequest meal) {
+    public ResponseEntity<MealCreateResponse> createMealWithImage(
+            @RequestPart("meal") MealCreateRequest meal,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        MealModel createdMeal = mealService.createMeal(meal.toModel(), meal.getMealCategoryId(), image);
+        if (createdMeal == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(MealCreateResponse.fromModel(createdMeal));
+    }
+
+    public ResponseEntity<MealCreateResponse> createMeal(MealCreateRequest meal) {
         MealModel createdMeal = mealService.createMeal(meal.toModel(), meal.getMealCategoryId());
         if (createdMeal == null) {
             return ResponseEntity.notFound().build();

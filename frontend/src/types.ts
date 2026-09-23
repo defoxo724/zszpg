@@ -17,6 +17,7 @@ export interface Meal {
 	description: string
 	price: number
 	mealCategoryId: number
+	imageUrl: string | null
 }
 
 export interface MealInput {
@@ -24,6 +25,7 @@ export interface MealInput {
 	description: string
 	price: number
 	mealCategoryId: number
+	image: File | null
 }
 
 export interface CartItem {

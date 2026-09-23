@@ -19,6 +19,7 @@ const createEmptyMeal = (categoryId = 0): MealInput => ({
 	description: '',
 	price: 0,
 	mealCategoryId: categoryId,
+	image: null,
 })
 
 const getFormMeal = (mealBeingEdited: Meal | null, categories: MealCategory[]): MealInput => {
@@ -31,11 +32,13 @@ const getFormMeal = (mealBeingEdited: Meal | null, categories: MealCategory[]): 
 		description: mealBeingEdited.description,
 		price: mealBeingEdited.price,
 		mealCategoryId: mealBeingEdited.mealCategoryId,
+		image: null,
 	}
 }
 
 const MealEditorForm = ({ categories, mealBeingEdited, onSave, onCancel }: MealEditorFormProps) => {
 	const [meal, setMeal] = useState<MealInput>(() => createEmptyMeal())
+	const [fileInputKey, setFileInputKey] = useState(0)
 
 	useEffect(() => {
 		setMeal(getFormMeal(mealBeingEdited, categories))
@@ -47,6 +50,7 @@ const MealEditorForm = ({ categories, mealBeingEdited, onSave, onCancel }: MealE
 
 		if (!mealBeingEdited) {
 			setMeal(createEmptyMeal(categories[0]?.id))
+			setFileInputKey((currentKey) => currentKey + 1)
 		}
 	}
 
@@ -115,6 +119,20 @@ const MealEditorForm = ({ categories, mealBeingEdited, onSave, onCancel }: MealE
 						</Form.Select>
 					</Col>
 				</Row>
+				{!mealBeingEdited && (
+					<Form.Group className="mt-3">
+						<Form.Label>Obraz posiłku</Form.Label>
+						<Form.Control
+							key={fileInputKey}
+							type="file"
+							accept="image/*"
+							onChange={(event) => {
+								const input = event.currentTarget as HTMLInputElement
+								updateMealField('image', input.files?.[0] ?? null)
+							}}
+						/>
+					</Form.Group>
+				)}
 				<Stack direction="horizontal" gap={2} className="mt-3">
 					<Button type="submit" disabled={!categories.length}>
 						{mealBeingEdited ? 'Zapisz' : 'Dodaj'}

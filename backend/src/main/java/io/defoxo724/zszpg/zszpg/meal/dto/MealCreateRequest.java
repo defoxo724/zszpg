@@ -22,6 +22,6 @@ public class MealCreateRequest {
     private Long mealCategoryId;
 
     public MealModel toModel() {
-        return new MealModel(null, name, description, price, null);
+        return new MealModel(null, name, description, price, null, null);
     }
 }

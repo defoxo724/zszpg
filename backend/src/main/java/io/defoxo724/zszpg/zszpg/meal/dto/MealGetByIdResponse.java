@@ -20,10 +20,15 @@ public class MealGetByIdResponse {
     private String description;
     private BigDecimal price;
     private Long mealCategoryId;
+    private String imageUrl;
+
+    public MealGetByIdResponse(Long id, String name, String description, BigDecimal price, Long mealCategoryId) {
+        this(id, name, description, price, mealCategoryId, null);
+    }
 
     public static MealGetByIdResponse fromModel(MealModel meal) {
         return new MealGetByIdResponse(meal.getId(), meal.getName(), meal.getDescription(), meal.getPrice(),
-                meal.getMealCategory().getId());
+                meal.getMealCategory().getId(), meal.getImageUrl());
     }
 
 }

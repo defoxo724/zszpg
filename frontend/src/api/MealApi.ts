@@ -8,12 +8,34 @@ export class MealApi {
 	}
 
 	static async createMeal(meal: MealInput) {
-		const response = await axiosConfig.post<Meal>('/meals', meal)
+		const formData = new FormData()
+		formData.append(
+			'meal',
+			new Blob(
+				[
+					JSON.stringify({
+						name: meal.name,
+						description: meal.description,
+						price: meal.price,
+						mealCategoryId: meal.mealCategoryId,
+					}),
+				],
+				{ type: 'application/json' },
+			),
+		)
+		if (meal.image) formData.append('image', meal.image)
+
+		const response = await axiosConfig.post<Meal>('/meals', formData)
 		return response.data
 	}
 
 	static async updateMeal(id: number, meal: MealInput) {
-		const response = await axiosConfig.put<Meal>(`/meals/${id}`, meal)
+		const response = await axiosConfig.put<Meal>(`/meals/${id}`, {
+			name: meal.name,
+			description: meal.description,
+			price: meal.price,
+			mealCategoryId: meal.mealCategoryId,
+		})
 		return response.data
 	}
 
