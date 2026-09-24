@@ -10,7 +10,11 @@ interface AuthContextValue {
 }
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export interface AuthProviderProps {
+	children: ReactNode
+}
+
+export const AuthProvider = (props: AuthProviderProps) => {
 	const [user, setUser] = useState<User | null>(null)
 	const [loading, setLoading] = useState(true)
 
@@ -26,7 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			}
 		}
 
-		void restoreSession()
+		restoreSession()
 	}, [])
 
 	const signIn = async (login: string, password: string) => {
@@ -40,15 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	return (
-		<AuthContext.Provider
-			value={{
-				user,
-				loading,
-				signIn,
-				signOut,
-			}}
-		>
-			{children}
+		<AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+			{props.children}
 		</AuthContext.Provider>
 	)
 }

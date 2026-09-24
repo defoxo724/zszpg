@@ -17,3 +17,48 @@ body {
 .table th {
 	vertical-align: middle;
 }
+
+.swal-form-fields {
+	display: flex !important;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0.75rem;
+	margin: 1rem 1.6rem 0 !important;
+	padding: 0 !important;
+	text-align: left !important;
+	overflow: visible !important;
+}
+
+.swal-form-fields .swal2-input,
+.swal-form-fields .swal2-select,
+.swal-form-fields .swal2-file {
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+	box-sizing: border-box;
+}
+
+.swal-form-fields .swal2-select {
+	height: 3.25rem;
+	padding: 0 0.75rem;
+	border: 1px solid #d9d9d9;
+	border-radius: 0.1875rem;
+	background-color: #fff;
+	box-shadow: inset 0 1px 1px rgb(0 0 0 / 6%);
+	color: #545454;
+	font-size: 1.125rem;
+}
+
+.swal-form-fields .swal2-select:focus {
+	border-color: #b4dbed;
+	outline: 0;
+	box-shadow: 0 0 0 3px rgb(100 150 200 / 20%);
+}
+
+.truncated-text {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	cursor: help;
+}

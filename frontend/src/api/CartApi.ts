@@ -1,34 +1,32 @@
-import type { Cart } from '../types'
-import { axiosConfig } from './axiosConfig'
+import { backendClient } from '../config/backendClient'
+import type {
+	AddMealToCartResponse,
+	CartGetByIdResponse,
+	RemoveMealFromCartResponse,
+} from './dto/CartDto'
 
-export class CartApi {
-	static async getCart(id: number) {
-		const response = await axiosConfig.get<Cart>(`/carts/${id}`)
+export const CartApi = {
+	async getCart(id: number): Promise<CartGetByIdResponse> {
+		const response = await backendClient.get<CartGetByIdResponse>(`/carts/${id}`)
 		return response.data
-	}
+	},
 
-	static async getCurrentUserCart() {
-		const response = await axiosConfig.get<Cart>('/carts/mine')
+	async getCurrentUserCart(): Promise<CartGetByIdResponse> {
+		const response = await backendClient.get<CartGetByIdResponse>('/carts/mine')
 		return response.data
-	}
+	},
 
-	static async getCarts() {
-		const response = await axiosConfig.get<{ carts: Cart[] }>('/carts')
-		return response.data.carts
-	}
-
-	static async updateCart(id: number, comment: string) {
-		const response = await axiosConfig.put<Cart>(`/carts/${id}`, { comment })
+	async addMealToCart(cartId: number, mealId: number): Promise<AddMealToCartResponse> {
+		const response = await backendClient.post<AddMealToCartResponse>(
+			`/carts/${cartId}/meals/${mealId}`,
+		)
 		return response.data
-	}
+	},
 
-	static async addMealToCart(cartId: number, mealId: number) {
-		const response = await axiosConfig.post<Cart>(`/carts/${cartId}/meals/${mealId}`)
+	async removeMealFromCart(cartId: number, mealId: number): Promise<RemoveMealFromCartResponse> {
+		const response = await backendClient.delete<RemoveMealFromCartResponse>(
+			`/carts/${cartId}/meals/${mealId}`,
+		)
 		return response.data
-	}
-
-	static async removeMealFromCart(cartId: number, mealId: number) {
-		const response = await axiosConfig.delete<Cart>(`/carts/${cartId}/meals/${mealId}`)
-		return response.data
-	}
+	},
 }

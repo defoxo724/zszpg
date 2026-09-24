@@ -1,45 +1,39 @@
-import type { Meal, MealInput } from '../types'
-import { axiosConfig } from './axiosConfig'
+import { backendClient } from '../config/backendClient'
+import type {
+	MealCreateRequest,
+	MealCreateResponse,
+	MealGetAllResponse,
+	MealUpdateRequest,
+	MealUpdateResponse,
+} from './dto/MealDto'
 
-export class MealApi {
-	static async getMeals() {
-		const response = await axiosConfig.get<{ meals: Meal[] }>('/meals')
+export const MealApi = {
+	async getMeals(): Promise<MealGetAllResponse['meals']> {
+		const response = await backendClient.get<MealGetAllResponse>('/meals')
 		return response.data.meals
-	}
+	},
 
-	static async createMeal(meal: MealInput) {
+	async createMeal(dto: MealCreateRequest, image?: File): Promise<MealCreateResponse> {
 		const formData = new FormData()
-		formData.append(
-			'meal',
-			new Blob(
-				[
-					JSON.stringify({
-						name: meal.name,
-						description: meal.description,
-						price: meal.price,
-						mealCategoryId: meal.mealCategoryId,
-					}),
-				],
-				{ type: 'application/json' },
-			),
-		)
-		if (meal.image) formData.append('image', meal.image)
+		const request: MealCreateRequest = {
+			name: dto.name,
+			description: dto.description,
+			price: dto.price,
+			mealCategoryId: dto.mealCategoryId,
+		}
+		formData.append('meal', new Blob([JSON.stringify(request)], { type: 'application/json' }))
+		if (image) formData.append('image', image)
 
-		const response = await axiosConfig.post<Meal>('/meals', formData)
+		const response = await backendClient.post<MealCreateResponse>('/meals', formData)
 		return response.data
-	}
+	},
 
-	static async updateMeal(id: number, meal: MealInput) {
-		const response = await axiosConfig.put<Meal>(`/meals/${id}`, {
-			name: meal.name,
-			description: meal.description,
-			price: meal.price,
-			mealCategoryId: meal.mealCategoryId,
-		})
+	async updateMeal(id: number, dto: MealUpdateRequest): Promise<MealUpdateResponse> {
+		const response = await backendClient.put<MealUpdateResponse>(`/meals/${id}`, dto)
 		return response.data
-	}
+	},
 
-	static async deleteMeal(id: number) {
-		await axiosConfig.delete(`/meals/${id}`)
-	}
+	async deleteMeal(id: number): Promise<void> {
+		await backendClient.delete(`/meals/${id}`)
+	},
 }

@@ -1,102 +1,68 @@
-import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import ListGroup from 'react-bootstrap/ListGroup'
-import { CategoryApi } from '../api/CategoryApi'
-import MealCategoryForm from '../components/MealCategoryForm'
-import StatusMessage from '../components/StatusMessage'
+import MealCategoryList from '../components/category/MealCategoryList'
+import PageHeader from '../components/common/PageHeader'
+import StatusMessage from '../components/common/StatusMessage'
 import { useAuth } from '../context/AuthContext'
+import { showCategoryFormDialog } from '../dialogs/categoryFormDialog'
+import { useMealCategories } from '../hooks/category/useMealCategories'
 import type { MealCategory } from '../types'
 import { getErrorMessage } from '../utils/getErrorMessage'
+import { confirmAction, showError, showSuccess } from '../utils/sweetAlert'
 
 const CategoriesPage = () => {
 	const { user } = useAuth()
+	const categoriesState = useMealCategories()
 	const isAdmin = user?.type === 'ADMIN'
-	const [categories, setCategories] = useState<MealCategory[]>([])
-	const [categoryBeingEdited, setCategoryBeingEdited] = useState<MealCategory | null>(null)
-	const [error, setError] = useState<string | null>(null)
 
-	const loadCategories = async () => {
+	const handleOpenForm = async (category?: MealCategory) => {
+		const name = await showCategoryFormDialog(category)
+		if (!name) return
+
 		try {
-			setCategories(await CategoryApi.getCategories())
-			setError(null)
+			await categoriesState.save(name, category)
+			void showSuccess(
+				category ? 'Kategoria została zaktualizowana' : 'Kategoria została dodana',
+			)
 		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się pobrać kategorii.'))
+			await showError(
+				'Błąd zapisu',
+				getErrorMessage(error, 'Nie udało się zapisać kategorii.'),
+			)
 		}
 	}
 
-	useEffect(() => {
-		void loadCategories()
-	}, [])
-
-	const handleSaveCategory = async (name: string) => {
-		try {
-			if (categoryBeingEdited) {
-				await CategoryApi.updateCategory(categoryBeingEdited.id, name)
-			} else {
-				await CategoryApi.createCategory(name)
-			}
-
-			setCategoryBeingEdited(null)
-			await loadCategories()
-		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się zapisać kategorii.'))
-		}
-	}
-
-	const handleDeleteCategory = async (categoryId: number) => {
-		const deletionConfirmed = confirm('Usunąć kategorię?')
-		if (!deletionConfirmed) {
-			return
-		}
+	const handleDelete = async (categoryId: number) => {
+		if (!(await confirmAction('Usunąć kategorię?', 'Tej operacji nie można cofnąć.'))) return
 
 		try {
-			await CategoryApi.deleteCategory(categoryId)
-			await loadCategories()
+			await categoriesState.remove(categoryId)
+			void showSuccess('Kategoria została usunięta')
 		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się usunąć kategorii.'))
+			await showError(
+				'Błąd usuwania',
+				getErrorMessage(error, 'Nie udało się usunąć kategorii.'),
+			)
 		}
 	}
 
 	return (
 		<>
-			<h1 className="mb-4">Kategorie posiłków</h1>
-			<StatusMessage message={error} />
-			{isAdmin && (
-				<MealCategoryForm
-					categoryBeingEdited={categoryBeingEdited}
-					onSave={handleSaveCategory}
-					onCancel={() => setCategoryBeingEdited(null)}
-				/>
-			)}
-			<ListGroup>
-				{categories.map((category) => (
-					<ListGroup.Item
-						className="d-flex justify-content-between align-items-center"
-						key={category.id}
-					>
-						<span>{category.name}</span>
-						{isAdmin && (
-							<ButtonGroup size="sm">
-								<Button
-									variant="outline-primary"
-									onClick={() => setCategoryBeingEdited(category)}
-								>
-									Edytuj
-								</Button>
-								<Button
-									variant="outline-danger"
-									onClick={() => handleDeleteCategory(category.id)}
-								>
-									Usuń
-								</Button>
-							</ButtonGroup>
-						)}
-					</ListGroup.Item>
-				))}
-			</ListGroup>
-			{!categories.length && <p>Brak kategorii.</p>}
+			<PageHeader title="Kategorie posiłków">
+				{isAdmin && (
+					<Button size="sm" onClick={() => void handleOpenForm()}>
+						Dodaj kategorię
+					</Button>
+				)}
+			</PageHeader>
+			<StatusMessage message={categoriesState.loadError} />
+			<MealCategoryList
+				categories={categoriesState.categories}
+				isAdmin={isAdmin}
+				onEdit={(category) => void handleOpenForm(category)}
+				onDelete={handleDelete}
+			/>
 		</>
 	)
 }
+
 export default CategoriesPage

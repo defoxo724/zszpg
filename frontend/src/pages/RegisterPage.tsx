@@ -1,15 +1,13 @@
 import axios from 'axios'
 import { useState } from 'react'
-import Card from 'react-bootstrap/Card'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
-import {
-	UserApi,
-	type RegistrationErrorResponse,
-	type RegistrationFieldErrors,
-} from '../api/UserApi'
-import UserCredentialsForm from '../components/UserCredentialsForm'
-import StatusMessage from '../components/StatusMessage'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { UserApi } from '../api/UserApi'
+import type { RegisterNewUserErrorResponse, RegistrationFieldErrors } from '../api/dto/UserDto'
+import AuthenticationCard from '../components/auth/AuthenticationCard'
+import UserCredentialsForm from '../components/auth/UserCredentialsForm'
+import StatusMessage from '../components/common/StatusMessage'
 import { useAuth } from '../context/AuthContext'
+import { showError, showSuccess } from '../utils/sweetAlert'
 
 const RegisterPage = () => {
 	const { user, signIn } = useAuth()
@@ -32,11 +30,12 @@ const RegisterPage = () => {
 		try {
 			await UserApi.register(login, password, passwordConfirmation)
 			await signIn(login, password)
+			void showSuccess('Konto zostało utworzone')
 			navigate('/meals', {
 				replace: true,
 			})
 		} catch (requestError) {
-			if (axios.isAxiosError<RegistrationErrorResponse>(requestError)) {
+			if (axios.isAxiosError<RegisterNewUserErrorResponse>(requestError)) {
 				const responseFieldErrors = requestError.response?.data.fieldErrors
 				if (responseFieldErrors) {
 					setFieldErrors(responseFieldErrors)
@@ -44,28 +43,27 @@ const RegisterPage = () => {
 				}
 			}
 
-			setError('Nie udało się utworzyć konta.')
+			const message = 'Nie udało się utworzyć konta.'
+			setError(message)
+			await showError('Błąd rejestracji', message)
 		}
 	}
 
 	return (
-		<Card className="auth-card">
-			<Card.Body>
-				<Card.Title as="h1" className="h3 mb-3">
-					Rejestracja
-				</Card.Title>
-				<StatusMessage message={error} />
-				<UserCredentialsForm
-					buttonLabel="Utwórz konto"
-					onSubmit={handleRegister}
-					fieldErrors={fieldErrors}
-					showPasswordConfirmation
-				/>
-				<p className="mt-3 mb-0">
-					Masz konto? <Link to="/login">Zaloguj się</Link>
-				</p>
-			</Card.Body>
-		</Card>
+		<AuthenticationCard
+			title="Rejestracja"
+			footerText="Masz konto?"
+			footerLinkText="Zaloguj się"
+			footerLinkTo="/login"
+		>
+			<StatusMessage message={error} />
+			<UserCredentialsForm
+				buttonLabel="Utwórz konto"
+				onSubmit={handleRegister}
+				fieldErrors={fieldErrors}
+				showPasswordConfirmation
+			/>
+		</AuthenticationCard>
 	)
 }
 export default RegisterPage

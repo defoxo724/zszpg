@@ -1,25 +1,37 @@
-import type { MealCategory } from '../types'
-import { axiosConfig } from './axiosConfig'
+import { backendClient } from '../config/backendClient'
+import type {
+	MealCategoryCreateResponse,
+	MealCategoryGetAllResponse,
+	MealCategoryGetAllResponseListElement,
+	MealCategoryRequest,
+	MealCategoryUpdateResponse,
+} from './dto/CategoryDto'
 
-export class CategoryApi {
-	static async getCategories() {
-		const response = await axiosConfig.get<{ mealCategories: MealCategory[] }>(
-			'/meal-categories',
-		)
+export const CategoryApi = {
+	async getCategories(): Promise<MealCategoryGetAllResponseListElement[]> {
+		const response = await backendClient.get<MealCategoryGetAllResponse>('/meal-categories')
 		return response.data.mealCategories
-	}
+	},
 
-	static async createCategory(name: string) {
-		const response = await axiosConfig.post<MealCategory>('/meal-categories', { name })
+	async createCategory(name: string): Promise<MealCategoryCreateResponse> {
+		const request: MealCategoryRequest = { name }
+		const response = await backendClient.post<MealCategoryCreateResponse>(
+			'/meal-categories',
+			request,
+		)
 		return response.data
-	}
+	},
 
-	static async updateCategory(id: number, name: string) {
-		const response = await axiosConfig.put<MealCategory>(`/meal-categories/${id}`, { name })
+	async updateCategory(id: number, name: string): Promise<MealCategoryUpdateResponse> {
+		const request: MealCategoryRequest = { name }
+		const response = await backendClient.put<MealCategoryUpdateResponse>(
+			`/meal-categories/${id}`,
+			request,
+		)
 		return response.data
-	}
+	},
 
-	static async deleteCategory(id: number) {
-		await axiosConfig.delete(`/meal-categories/${id}`)
-	}
+	async deleteCategory(id: number): Promise<void> {
+		await backendClient.delete(`/meal-categories/${id}`)
+	},
 }

@@ -1,89 +1,68 @@
-import { useEffect, useState } from 'react'
-import { CategoryApi } from '../api/CategoryApi'
-import { MealApi } from '../api/MealApi'
-import MealEditorForm from '../components/MealEditorForm'
-import MealsTable from '../components/MealsTable'
-import StatusMessage from '../components/StatusMessage'
+import Button from 'react-bootstrap/Button'
+import StatusMessage from '../components/common/StatusMessage'
+import PageHeader from '../components/common/PageHeader'
+import MealsTable from '../components/meal/MealsTable'
 import { useAuth } from '../context/AuthContext'
-import type { Meal, MealCategory, MealInput } from '../types'
+import { showMealFormDialog } from '../dialogs/mealFormDialog'
+import { useMeals } from '../hooks/meal/useMeals'
+import type { Meal } from '../types'
 import { getErrorMessage } from '../utils/getErrorMessage'
+import { confirmAction, showError, showSuccess } from '../utils/sweetAlert'
 
 const MealsPage = () => {
 	const { user } = useAuth()
+	const mealsState = useMeals()
 	const isAdmin = user?.type === 'ADMIN'
-	const [meals, setMeals] = useState<Meal[]>([])
-	const [categories, setCategories] = useState<MealCategory[]>([])
-	const [mealBeingEdited, setMealBeingEdited] = useState<Meal | null>(null)
-	const [error, setError] = useState<string | null>(null)
 
-	const loadMealsAndCategories = async () => {
+	const handleOpenForm = async (meal?: Meal) => {
+		const mealInput = await showMealFormDialog(mealsState.categories, meal)
+		if (!mealInput) return
+
 		try {
-			const [loadedMeals, loadedCategories] = await Promise.all([
-				MealApi.getMeals(),
-				CategoryApi.getCategories(),
-			])
-
-			setMeals(loadedMeals)
-			setCategories(loadedCategories)
-			setError(null)
+			await mealsState.save(mealInput, meal)
+			void showSuccess(meal ? 'Posiłek został zaktualizowany' : 'Posiłek został dodany')
 		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się pobrać danych.'))
+			await showError('Błąd zapisu', getErrorMessage(error, 'Nie udało się zapisać posiłku.'))
 		}
 	}
 
-	useEffect(() => {
-		void loadMealsAndCategories()
-	}, [])
-
-	const handleSaveMeal = async (mealInput: MealInput) => {
-		try {
-			if (mealBeingEdited) {
-				await MealApi.updateMeal(mealBeingEdited.id, mealInput)
-			} else {
-				await MealApi.createMeal(mealInput)
-			}
-
-			setMealBeingEdited(null)
-			await loadMealsAndCategories()
-		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się zapisać posiłku.'))
-		}
-	}
-
-	const handleDeleteMeal = async (mealId: number) => {
-		const deletionConfirmed = confirm('Usunąć posiłek?')
-		if (!deletionConfirmed) {
-			return
-		}
+	const handleDelete = async (mealId: number) => {
+		if (!(await confirmAction('Usunąć posiłek?', 'Tej operacji nie można cofnąć.'))) return
 
 		try {
-			await MealApi.deleteMeal(mealId)
-			await loadMealsAndCategories()
+			await mealsState.remove(mealId)
+			void showSuccess('Posiłek został usunięty')
 		} catch (error) {
-			setError(getErrorMessage(error, 'Nie udało się usunąć posiłku.'))
+			await showError(
+				'Błąd usuwania',
+				getErrorMessage(error, 'Nie udało się usunąć posiłku.'),
+			)
 		}
 	}
 
 	return (
 		<>
-			<h1 className="mb-4">Posiłki</h1>
-			<StatusMessage message={error} />
-			{isAdmin && (
-				<MealEditorForm
-					categories={categories}
-					mealBeingEdited={mealBeingEdited}
-					onSave={handleSaveMeal}
-					onCancel={() => setMealBeingEdited(null)}
-				/>
-			)}
+			<PageHeader title="Posiłki">
+				{isAdmin && (
+					<Button
+						size="sm"
+						onClick={() => void handleOpenForm()}
+						disabled={!mealsState.categories.length}
+					>
+						Dodaj posiłek
+					</Button>
+				)}
+			</PageHeader>
+			<StatusMessage message={mealsState.loadError} />
 			<MealsTable
-				meals={meals}
-				categories={categories}
+				meals={mealsState.meals}
+				categories={mealsState.categories}
 				isAdmin={isAdmin}
-				onEdit={setMealBeingEdited}
-				onDelete={handleDeleteMeal}
+				onEdit={(meal) => void handleOpenForm(meal)}
+				onDelete={handleDelete}
 			/>
 		</>
 	)
 }
+
 export default MealsPage

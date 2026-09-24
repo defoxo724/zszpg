@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import ApplicationLayout from './components/ApplicationLayout'
-import AuthenticatedRoute from './components/AuthenticatedRoute'
+import ApplicationLayout from './components/layout/ApplicationLayout'
+import AuthenticatedRoute from './components/auth/AuthenticatedRoute'
 import { AuthProvider } from './context/AuthContext'
 import CartDetailsPage from './pages/CartDetailsPage'
 import CartsPage from './pages/CartsPage'
