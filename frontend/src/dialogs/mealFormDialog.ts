@@ -1,12 +1,13 @@
 import Swal from 'sweetalert2'
+import { validation } from '../config/validation'
 import type { Meal, MealCategory, MealInput } from '../types'
 
 const getInput = (id: string) => document.getElementById(id) as HTMLInputElement
 const getSelect = (id: string) => document.getElementById(id) as HTMLSelectElement
 
 const createFormHtml = (showImageInput: boolean) => `
-	<input id="meal-name" class="swal2-input" placeholder="Nazwa">
-	<input id="meal-description" class="swal2-input" placeholder="Opis">
+	<input id="meal-name" class="swal2-input" placeholder="Nazwa" minlength="${validation.meal.name.minLength}" maxlength="${validation.meal.name.maxLength}">
+	<input id="meal-description" class="swal2-input" placeholder="Opis" minlength="${validation.meal.description.minLength}" maxlength="${validation.meal.description.maxLength}">
 	<input id="meal-price" class="swal2-input" type="number" min="0" step="0.01" placeholder="Cena">
 	<select id="meal-category" class="swal2-select"></select>
 	${showImageInput ? '<input id="meal-image" class="swal2-file" type="file" accept="image/*">' : ''}
@@ -29,7 +30,6 @@ const populateForm = (categories: MealCategory[], meal?: Meal) => {
 
 const readForm = (): MealInput => {
 	const imageInput = document.getElementById('meal-image') as HTMLInputElement | null
-
 	return {
 		name: getInput('meal-name').value.trim(),
 		description: getInput('meal-description').value.trim(),
@@ -40,7 +40,21 @@ const readForm = (): MealInput => {
 }
 
 const getValidationMessage = (mealInput: MealInput) => {
+	const nameLimits = validation.meal.name
+	const descriptionLimits = validation.meal.description
 	if (!mealInput.name || !mealInput.description) return 'Uzupełnij nazwę i opis posiłku.'
+	if (
+		mealInput.name.length < nameLimits.minLength ||
+		mealInput.name.length > nameLimits.maxLength
+	) {
+		return `Nazwa posiłku musi mieć od ${nameLimits.minLength} do ${nameLimits.maxLength} znaków.`
+	}
+	if (
+		mealInput.description.length < descriptionLimits.minLength ||
+		mealInput.description.length > descriptionLimits.maxLength
+	) {
+		return `Opis posiłku musi mieć od ${descriptionLimits.minLength} do ${descriptionLimits.maxLength} znaków.`
+	}
 	if (!Number.isFinite(mealInput.price) || mealInput.price < 0) return 'Podaj prawidłową cenę.'
 	if (!mealInput.mealCategoryId) return 'Wybierz kategorię.'
 	return null

@@ -1,6 +1,7 @@
 import ListGroup from 'react-bootstrap/ListGroup'
 import type { MealCategory } from '../../types'
 import EntityActionButtons from '../common/EntityActionButtons'
+import TruncatedText from '../common/TruncatedText'
 
 interface MealCategoryListProps {
 	categories: MealCategory[]
@@ -17,7 +18,7 @@ const MealCategoryList = (props: MealCategoryListProps) => (
 					className="d-flex justify-content-between align-items-center"
 					key={category.id}
 				>
-					<span>{category.name}</span>
+					<TruncatedText text={category.name} maxWidth="420px" />
 					{props.isAdmin && (
 						<EntityActionButtons
 							onEdit={() => props.onEdit(category)}

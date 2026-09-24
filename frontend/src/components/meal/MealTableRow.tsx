@@ -26,7 +26,9 @@ const MealTableRow = (props: MealTableRowProps) => (
 				<span className="text-secondary">Brak</span>
 			)}
 		</td>
-		<td>{props.meal.name}</td>
+		<td>
+			<TruncatedText text={props.meal.name} maxWidth="180px" />
+		</td>
 		<td>
 			<TruncatedText text={props.meal.description} />
 		</td>

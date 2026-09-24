@@ -1,6 +1,7 @@
 package io.defoxo724.zszpg.zszpg.meal;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class MealController {
     private final MealService mealService;
 
+    @Value("${app.meal.name.min_length:3}")
+    private int nameMinLength = 3;
+    @Value("${app.meal.name.max_length:100}")
+    private int nameMaxLength = 100;
+    @Value("${app.meal.description.min_length:3}")
+    private int descriptionMinLength = 3;
+    @Value("${app.meal.description.max_length:255}")
+    private int descriptionMaxLength = 255;
+
     public MealController(MealService mealService) {
         this.mealService = mealService;
     }
@@ -50,6 +60,9 @@ public class MealController {
     public ResponseEntity<MealCreateResponse> createMealWithImage(
             @RequestPart("meal") MealCreateRequest meal,
             @RequestPart(value = "image", required = false) MultipartFile image) {
+        if (!isValidMeal(meal.getName(), meal.getDescription())) {
+            return ResponseEntity.badRequest().build();
+        }
         MealModel createdMeal = mealService.createMeal(meal.toModel(), meal.getMealCategoryId(), image);
         if (createdMeal == null) {
             return ResponseEntity.notFound().build();
@@ -58,6 +71,9 @@ public class MealController {
     }
 
     public ResponseEntity<MealCreateResponse> createMeal(MealCreateRequest meal) {
+        if (!isValidMeal(meal.getName(), meal.getDescription())) {
+            return ResponseEntity.badRequest().build();
+        }
         MealModel createdMeal = mealService.createMeal(meal.toModel(), meal.getMealCategoryId());
         if (createdMeal == null) {
             return ResponseEntity.notFound().build();
@@ -99,6 +115,9 @@ public class MealController {
     public ResponseEntity<MealUpdateResponse> updateMealById(
             @Parameter(description = "The identifier of the meal to update.", example = "1", required = true) @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The replacement meal data.", required = true, content = @Content(schema = @Schema(implementation = MealUpdateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Pepperoni pizza\",\"description\":\"Pizza with tomatoes, mozzarella, and pepperoni\",\"price\":31.50,\"mealCategoryId\":2}"))) @RequestBody MealUpdateRequest meal) {
+        if (!isValidMeal(meal.getName(), meal.getDescription())) {
+            return ResponseEntity.badRequest().build();
+        }
         MealModel updatedMeal = mealService.updateMealById(id, meal.toModel(), meal.getMealCategoryId());
         if (updatedMeal == null) {
             return ResponseEntity.notFound().build();
@@ -115,5 +134,11 @@ public class MealController {
             @Parameter(description = "The identifier of the meal to delete.", example = "1", required = true) @PathVariable Long id) {
         mealService.deleteMealById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean isValidMeal(String name, String description) {
+        return name != null && !name.isBlank() && name.length() >= nameMinLength && name.length() <= nameMaxLength
+                && description != null && !description.isBlank() && description.length() >= descriptionMinLength
+                && description.length() <= descriptionMaxLength;
     }
 }

@@ -1,6 +1,7 @@
 package io.defoxo724.zszpg.zszpg.meal_category;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class MealCategoryController {
     private final MealCategoryService mealCategoryService;
 
+    @Value("${app.meal_category.name.min_length:3}")
+    private int nameMinLength = 3;
+    @Value("${app.meal_category.name.max_length:100}")
+    private int nameMaxLength = 100;
+
     public MealCategoryController(MealCategoryService mealCategoryService) {
         this.mealCategoryService = mealCategoryService;
     }
@@ -43,6 +49,9 @@ public class MealCategoryController {
     @ApiResponse(responseCode = "200", description = "The meal category was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealCategoryCreateResponse.class), examples = @ExampleObject(value = "{\"id\":2,\"name\":\"Main courses\"}")))
     public ResponseEntity<MealCategoryCreateResponse> createMealCategory(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new meal category data.", required = true, content = @Content(schema = @Schema(implementation = MealCategoryCreateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Main courses\"}"))) @RequestBody MealCategoryCreateRequest mealCategory) {
+        if (!isValidName(mealCategory.getName())) {
+            return ResponseEntity.badRequest().build();
+        }
         MealCategoryModel createdMealCategory = mealCategoryService.createMealCategory(mealCategory.toModel());
         return ResponseEntity.ok(MealCategoryCreateResponse.fromModel(createdMealCategory));
     }
@@ -82,6 +91,9 @@ public class MealCategoryController {
     public ResponseEntity<MealCategoryUpdateResponse> updateMealCategoryById(
             @Parameter(description = "The identifier of the meal category to update.", example = "2", required = true) @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The replacement meal category data.", required = true, content = @Content(schema = @Schema(implementation = MealCategoryUpdateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Lunch dishes\"}"))) @RequestBody MealCategoryUpdateRequest mealCategory) {
+        if (!isValidName(mealCategory.getName())) {
+            return ResponseEntity.badRequest().build();
+        }
         MealCategoryModel updatedMealCategory = mealCategoryService.updateMealCategoryById(id,
                 mealCategory.toModel());
         if (updatedMealCategory == null) {
@@ -99,5 +111,9 @@ public class MealCategoryController {
             @Parameter(description = "The identifier of the meal category to delete.", example = "2", required = true) @PathVariable Long id) {
         mealCategoryService.deleteMealCategoryById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean isValidName(String name) {
+        return name != null && !name.isBlank() && name.length() >= nameMinLength && name.length() <= nameMaxLength;
     }
 }
