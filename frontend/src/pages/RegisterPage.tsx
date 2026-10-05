@@ -16,7 +16,7 @@ const RegisterPage = () => {
 	const [fieldErrors, setFieldErrors] = useState<RegistrationFieldErrors>({})
 
 	if (user) {
-		return <Navigate to="/meals" replace />
+		return <Navigate to={user.type === 'ADMIN' ? '/meals' : '/order'} replace />
 	}
 
 	const handleRegister = async (
@@ -31,7 +31,7 @@ const RegisterPage = () => {
 			await UserApi.register(login, password, passwordConfirmation)
 			await signIn(login, password)
 			void showSuccess('Konto zostało utworzone')
-			navigate('/meals', {
+			navigate('/order', {
 				replace: true,
 			})
 		} catch (requestError) {

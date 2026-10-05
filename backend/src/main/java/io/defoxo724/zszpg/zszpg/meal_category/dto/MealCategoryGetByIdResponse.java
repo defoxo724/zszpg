@@ -15,9 +15,14 @@ import lombok.NoArgsConstructor;
 public class MealCategoryGetByIdResponse {
     private Long id;
     private String name;
+    private String imageUrl;
+
+    public MealCategoryGetByIdResponse(Long id, String name) {
+        this(id, name, null);
+    }
 
     public static MealCategoryGetByIdResponse fromModel(MealCategoryModel mealCategory) {
-        return new MealCategoryGetByIdResponse(mealCategory.getId(), mealCategory.getName());
+        return new MealCategoryGetByIdResponse(mealCategory.getId(), mealCategory.getName(), mealCategory.getImageUrl());
     }
 
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CategoryApi } from '../../api/CategoryApi'
-import type { MealCategory } from '../../types'
+import type { MealCategory, MealCategoryInput } from '../../types'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 
 export const useMealCategories = () => {
@@ -20,11 +20,15 @@ export const useMealCategories = () => {
 		void load()
 	}, [load])
 
-	const save = async (name: string, category?: MealCategory) => {
+	const save = async (categoryInput: MealCategoryInput, category?: MealCategory) => {
 		if (category) {
-			await CategoryApi.updateCategory(category.id, name)
+			await CategoryApi.updateCategory(
+				category.id,
+				categoryInput.name,
+				categoryInput.image ?? undefined,
+			)
 		} else {
-			await CategoryApi.createCategory(name)
+			await CategoryApi.createCategory(categoryInput.name, categoryInput.image ?? undefined)
 		}
 		await load()
 	}

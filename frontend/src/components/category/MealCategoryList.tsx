@@ -18,7 +18,20 @@ const MealCategoryList = (props: MealCategoryListProps) => (
 					className="d-flex justify-content-between align-items-center"
 					key={category.id}
 				>
-					<TruncatedText text={category.name} maxWidth="420px" />
+					<div className="d-flex align-items-center gap-3 overflow-hidden">
+						{category.imageUrl ? (
+							<img
+								src={category.imageUrl}
+								alt={category.name}
+								width={72}
+								height={52}
+								className="rounded object-fit-cover flex-shrink-0"
+							/>
+						) : (
+							<span className="category-image-placeholder">Brak obrazu</span>
+						)}
+						<TruncatedText text={category.name} maxWidth="420px" />
+					</div>
 					{props.isAdmin && (
 						<EntityActionButtons
 							onEdit={() => props.onEdit(category)}

@@ -5,7 +5,7 @@ import type { User } from '../types'
 interface AuthContextValue {
 	user: User | null
 	loading: boolean
-	signIn: (login: string, password: string) => Promise<void>
+	signIn: (login: string, password: string) => Promise<User>
 	signOut: () => Promise<void>
 }
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -36,6 +36,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 	const signIn = async (login: string, password: string) => {
 		const loggedInUser = await UserApi.login(login, password)
 		setUser(loggedInUser)
+		return loggedInUser
 	}
 
 	const signOut = async () => {

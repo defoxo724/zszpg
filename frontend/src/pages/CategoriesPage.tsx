@@ -15,11 +15,11 @@ const CategoriesPage = () => {
 	const isAdmin = user?.type === 'ADMIN'
 
 	const handleOpenForm = async (category?: MealCategory) => {
-		const name = await showCategoryFormDialog(category)
-		if (!name) return
+		const categoryInput = await showCategoryFormDialog(category)
+		if (!categoryInput) return
 
 		try {
-			await categoriesState.save(name, category)
+			await categoriesState.save(categoryInput, category)
 			void showSuccess(
 				category ? 'Kategoria została zaktualizowana' : 'Kategoria została dodana',
 			)

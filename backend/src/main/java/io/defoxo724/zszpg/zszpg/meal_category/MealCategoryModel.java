@@ -3,6 +3,7 @@ package io.defoxo724.zszpg.zszpg.meal_category;
 import java.util.List;
 
 import io.defoxo724.zszpg.zszpg.meal.MealModel;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,11 +24,16 @@ public class MealCategoryModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
     @OneToMany(mappedBy = "mealCategory")
     private List<MealModel> meals;
 
     public MealCategoryModel(Long id, String name) {
-        this.id = id;
-        this.name = name;
+        this(id, name, null, null);
+    }
+
+    public MealCategoryModel(Long id, String name, List<MealModel> meals) {
+        this(id, name, null, meals);
     }
 }

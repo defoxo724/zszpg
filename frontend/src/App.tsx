@@ -1,6 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import ApplicationLayout from './components/layout/ApplicationLayout'
 import AuthenticatedRoute from './components/auth/AuthenticatedRoute'
+import HomeRedirect from './components/auth/HomeRedirect'
 import { AuthProvider } from './context/AuthContext'
 import CartDetailsPage from './pages/CartDetailsPage'
 import CartsPage from './pages/CartsPage'
@@ -9,23 +10,30 @@ import LoginPage from './pages/LoginPage'
 import MealsPage from './pages/MealsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import RegisterPage from './pages/RegisterPage'
+import OrdererPage from './pages/OrdererPage'
+import ApplicationSettingsPage from './pages/ApplicationSettingsPage'
 
 const App = () => (
 	<AuthProvider>
 		<Routes>
+			<Route index element={<HomeRedirect />} />
 			<Route element={<ApplicationLayout />}>
 				<Route path="/login" element={<LoginPage />} />
 				<Route path="/register" element={<RegisterPage />} />
-				<Route element={<AuthenticatedRoute />}>
-					<Route index element={<Navigate to="/meals" replace />} />
+			</Route>
+			<Route element={<AuthenticatedRoute requiredUserType="ADMIN" />}>
+				<Route element={<ApplicationLayout />}>
 					<Route path="/meals" element={<MealsPage />} />
 					<Route path="/categories" element={<CategoriesPage />} />
-					<Route path="/cart" element={<CartsPage />} />
-					<Route path="/carts" element={<Navigate to="/cart" replace />} />
+					<Route path="/settings" element={<ApplicationSettingsPage />} />
+					<Route path="/carts" element={<CartsPage />} />
 					<Route path="/carts/:cartId" element={<CartDetailsPage />} />
 				</Route>
-				<Route path="*" element={<NotFoundPage />} />
 			</Route>
+			<Route element={<AuthenticatedRoute requiredUserType="ORDERER" />}>
+				<Route path="/order" element={<OrdererPage />} />
+			</Route>
+			<Route path="*" element={<NotFoundPage />} />
 		</Routes>
 	</AuthProvider>
 )

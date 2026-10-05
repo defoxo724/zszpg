@@ -13,20 +13,36 @@ export const CategoryApi = {
 		return response.data.mealCategories
 	},
 
-	async createCategory(name: string): Promise<MealCategoryCreateResponse> {
+	async createCategory(name: string, image?: File): Promise<MealCategoryCreateResponse> {
 		const request: MealCategoryRequest = { name }
+		const formData = new FormData()
+		formData.append(
+			'category',
+			new Blob([JSON.stringify(request)], { type: 'application/json' }),
+		)
+		if (image) formData.append('image', image)
 		const response = await backendClient.post<MealCategoryCreateResponse>(
 			'/meal-categories',
-			request,
+			formData,
 		)
 		return response.data
 	},
 
-	async updateCategory(id: number, name: string): Promise<MealCategoryUpdateResponse> {
+	async updateCategory(
+		id: number,
+		name: string,
+		image?: File,
+	): Promise<MealCategoryUpdateResponse> {
 		const request: MealCategoryRequest = { name }
+		const formData = new FormData()
+		formData.append(
+			'category',
+			new Blob([JSON.stringify(request)], { type: 'application/json' }),
+		)
+		if (image) formData.append('image', image)
 		const response = await backendClient.put<MealCategoryUpdateResponse>(
 			`/meal-categories/${id}`,
-			request,
+			formData,
 		)
 		return response.data
 	},

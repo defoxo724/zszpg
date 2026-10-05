@@ -31,11 +31,29 @@ body {
 
 .swal-form-fields .swal2-input,
 .swal-form-fields .swal2-select,
-.swal-form-fields .swal2-file {
+.swal-form-fields .swal2-file,
+.swal-form-fields .swal2-textarea {
 	width: 100% !important;
 	max-width: none !important;
 	margin: 0 !important;
 	box-sizing: border-box;
+}
+
+.swal-form-fields .swal2-textarea {
+	min-height: 7rem;
+	padding: 0.75rem;
+	resize: vertical;
+}
+
+.swal-form-fields .swal-color-input {
+	height: 3rem;
+	padding: 0.35rem;
+}
+
+.swal-field-label {
+	margin-bottom: -0.5rem;
+	color: #545454;
+	font-size: 0.9rem;
 }
 
 .swal-form-fields .swal2-select {
@@ -61,4 +79,38 @@ body {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	cursor: help;
+}
+
+.category-image-placeholder {
+	display: grid;
+	width: 72px;
+	height: 52px;
+	place-items: center;
+	flex-shrink: 0;
+	border-radius: 0.375rem;
+	background: #e9ecef;
+	color: #6c757d;
+	font-size: 0.7rem;
+}
+
+.settings-preview {
+	display: flex;
+	min-height: 420px;
+	padding: 3rem;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.75rem;
+	background-position: center;
+	background-size: cover;
+	text-align: center;
+}
+
+.settings-preview h2 {
+	font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.settings-preview p {
+	max-width: 680px;
+	font-size: 1.2rem;
 }

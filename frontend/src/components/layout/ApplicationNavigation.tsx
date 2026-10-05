@@ -10,7 +10,7 @@ const ApplicationNavigation = (props: ApplicationNavigationProps) => (
 	<Nav className="me-auto">
 		<NavLinkItem to="/meals" text="Posiłki" />
 		<NavLinkItem to="/categories" text="Kategorie" />
-		{props.userType === 'ORDERER' && <NavLinkItem to="/cart" text="Koszyk" />}
+		{props.userType === 'ADMIN' && <NavLinkItem to="/settings" text="Ustawienia" />}
 	</Nav>
 )
 

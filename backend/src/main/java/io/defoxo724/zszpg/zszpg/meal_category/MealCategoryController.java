@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import io.defoxo724.zszpg.zszpg.meal_category.dto.MealCategoryCreateRequest;
@@ -43,12 +45,21 @@ public class MealCategoryController {
         this.mealCategoryService = mealCategoryService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a meal category", description = "Creates a new meal category with the specified name.")
     @ApiResponse(responseCode = "200", description = "The meal category was created.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealCategoryCreateResponse.class), examples = @ExampleObject(value = "{\"id\":2,\"name\":\"Main courses\"}")))
-    public ResponseEntity<MealCategoryCreateResponse> createMealCategory(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new meal category data.", required = true, content = @Content(schema = @Schema(implementation = MealCategoryCreateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Main courses\"}"))) @RequestBody MealCategoryCreateRequest mealCategory) {
+    public ResponseEntity<MealCategoryCreateResponse> createMealCategoryWithImage(
+            @RequestPart("category") MealCategoryCreateRequest mealCategory,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        if (!isValidName(mealCategory.getName())) {
+            return ResponseEntity.badRequest().build();
+        }
+        MealCategoryModel createdMealCategory = mealCategoryService.createMealCategory(mealCategory.toModel(), image);
+        return ResponseEntity.ok(MealCategoryCreateResponse.fromModel(createdMealCategory));
+    }
+
+    public ResponseEntity<MealCategoryCreateResponse> createMealCategory(MealCategoryCreateRequest mealCategory) {
         if (!isValidName(mealCategory.getName())) {
             return ResponseEntity.badRequest().build();
         }
@@ -81,16 +92,31 @@ public class MealCategoryController {
                 .ok(MealCategoryGetAllResponse.fromModelList(mealCategoryService.getAllMealCategories()));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a meal category", description = "Replaces the data of the meal category with the specified identifier.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The meal category was updated.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MealCategoryUpdateResponse.class), examples = @ExampleObject(value = "{\"id\":2,\"name\":\"Lunch dishes\"}"))),
             @ApiResponse(responseCode = "404", description = "A meal category with the specified identifier does not exist.", content = @Content)
     })
-    public ResponseEntity<MealCategoryUpdateResponse> updateMealCategoryById(
+    public ResponseEntity<MealCategoryUpdateResponse> updateMealCategoryByIdWithImage(
             @Parameter(description = "The identifier of the meal category to update.", example = "2", required = true) @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The replacement meal category data.", required = true, content = @Content(schema = @Schema(implementation = MealCategoryUpdateRequest.class), examples = @ExampleObject(value = "{\"name\":\"Lunch dishes\"}"))) @RequestBody MealCategoryUpdateRequest mealCategory) {
+            @RequestPart("category") MealCategoryUpdateRequest mealCategory,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        if (!isValidName(mealCategory.getName())) {
+            return ResponseEntity.badRequest().build();
+        }
+        MealCategoryModel updatedMealCategory = mealCategoryService.updateMealCategoryById(id,
+                mealCategory.toModel(), image);
+        if (updatedMealCategory == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(MealCategoryUpdateResponse.fromModel(updatedMealCategory));
+    }
+
+    public ResponseEntity<MealCategoryUpdateResponse> updateMealCategoryById(Long id,
+            MealCategoryUpdateRequest mealCategory) {
         if (!isValidName(mealCategory.getName())) {
             return ResponseEntity.badRequest().build();
         }
@@ -99,7 +125,6 @@ public class MealCategoryController {
         if (updatedMealCategory == null) {
             return ResponseEntity.notFound().build();
         }
-
         return ResponseEntity.ok(MealCategoryUpdateResponse.fromModel(updatedMealCategory));
     }
 

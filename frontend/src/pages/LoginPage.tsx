@@ -17,16 +17,16 @@ const LoginPage = () => {
 	const [error, setError] = useState<string | null>(null)
 
 	if (user) {
-		return <Navigate to="/meals" replace />
+		return <Navigate to={user.type === 'ADMIN' ? '/meals' : '/order'} replace />
 	}
 
 	const handleLogin = async (login: string, password: string) => {
 		try {
-			await signIn(login, password)
+			const loggedInUser = await signIn(login, password)
 			void showSuccess('Zalogowano')
 
 			const previousLocation = (location.state as LoginLocationState | null)?.from
-			navigate(previousLocation ?? '/meals')
+			navigate(previousLocation ?? (loggedInUser.type === 'ADMIN' ? '/meals' : '/order'))
 		} catch {
 			const message = 'Nieprawidłowy login lub hasło.'
 			setError(message)

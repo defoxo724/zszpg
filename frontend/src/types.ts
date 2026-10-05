@@ -9,6 +9,12 @@ export interface User {
 export interface MealCategory {
 	id: number
 	name: string
+	imageUrl: string | null
+}
+
+export interface MealCategoryInput {
+	name: string
+	image: File | null
 }
 
 export interface Meal {
@@ -38,4 +44,22 @@ export interface Cart {
 	id: number
 	comment: string
 	cartItems: CartItem[]
+}
+
+export interface ApplicationSettings {
+	restaurantName: string
+	restaurantDescription: string
+	nameColor: string
+	descriptionColor: string
+	fontFamily: string
+	backgroundImageUrl: string | null
+}
+
+export interface ApplicationSettingsInput {
+	restaurantName: string
+	restaurantDescription: string
+	nameColor: string
+	descriptionColor: string
+	fontFamily: string
+	backgroundImage: File | null
 }

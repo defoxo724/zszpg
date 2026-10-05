@@ -15,9 +15,15 @@ import lombok.NoArgsConstructor;
 public class MealCategoryGetAllResponseListElement {
     private Long id;
     private String name;
+    private String imageUrl;
+
+    public MealCategoryGetAllResponseListElement(Long id, String name) {
+        this(id, name, null);
+    }
 
     public static MealCategoryGetAllResponseListElement fromModel(MealCategoryModel mealCategory) {
-        return new MealCategoryGetAllResponseListElement(mealCategory.getId(), mealCategory.getName());
+        return new MealCategoryGetAllResponseListElement(mealCategory.getId(), mealCategory.getName(),
+                mealCategory.getImageUrl());
     }
 
 }

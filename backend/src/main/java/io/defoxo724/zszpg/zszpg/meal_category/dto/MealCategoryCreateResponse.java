@@ -15,9 +15,14 @@ import lombok.Setter;
 public class MealCategoryCreateResponse {
     private Long id;
     private String name;
+    private String imageUrl;
+
+    public MealCategoryCreateResponse(Long id, String name) {
+        this(id, name, null);
+    }
 
     public static MealCategoryCreateResponse fromModel(MealCategoryModel mealCategory) {
-        return new MealCategoryCreateResponse(mealCategory.getId(), mealCategory.getName());
+        return new MealCategoryCreateResponse(mealCategory.getId(), mealCategory.getName(), mealCategory.getImageUrl());
     }
 
 }
